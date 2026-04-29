@@ -1,0 +1,31 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "Build UI",
+      "type": "shell",
+      "command": "find ui -name '*.ui' | while read f; do ${workspaceFolder}/.venv/bin/pyside6-uic \"$f\" -o \"$(dirname \"$f\")/ui_$(basename \"${f%.ui}\").py\"; done"
+    },
+    {
+      "label": "Build Requirements",
+      "type": "shell",
+      "command": "${workspaceFolder}/.venv/bin/pipreqs . --encoding=utf-8 --ignore .venv,__pycache__,resources,cache,database"
+    },
+    {
+      "label": "Run PyQt",
+      "type": "shell",
+      "command": "${workspaceFolder}/.venv/bin/python",
+      "args": [
+        "main.py"
+      ],
+      "dependsOn": [
+        "Build UI",
+        "Build Requirements"
+      ],
+      "group": {
+        "kind": "build",
+        "isDefault": true
+      }
+    }
+  ]
+}
