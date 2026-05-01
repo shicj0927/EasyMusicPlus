@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>MainWindow</class>
+ <class>mainWindow</class>
  <widget class="QMainWindow" name="mainWindow">
   <property name="geometry">
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1148</width>
+    <width>999</width>
     <height>701</height>
    </rect>
   </property>
@@ -40,20 +40,6 @@
         </item>
        </layout>
       </widget>
-      <widget class="QWidget" name="qWidget_songsArea">
-       <layout class="QVBoxLayout" name="qVBoxLayout_songsArea">
-        <item>
-         <widget class="QLabel" name="qLabel_songsTitle">
-          <property name="text">
-           <string>歌曲列表</string>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QListWidget" name="qListWidget_songsList"/>
-        </item>
-       </layout>
-      </widget>
       <widget class="QWidget" name="qWidget_infoArea">
        <layout class="QVBoxLayout" name="qVBoxLayout_infoArea">
         <item>
@@ -82,6 +68,20 @@
            </widget>
           </item>
          </layout>
+        </item>
+       </layout>
+      </widget>
+      <widget class="QWidget" name="qWidget_songsArea">
+       <layout class="QVBoxLayout" name="qVBoxLayout_songsArea">
+        <item>
+         <widget class="QLabel" name="qLabel_songsTitle">
+          <property name="text">
+           <string>歌曲列表</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QListWidget" name="qListWidget_songsList"/>
         </item>
        </layout>
       </widget>
@@ -192,7 +192,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>1148</width>
+     <width>999</width>
      <height>23</height>
     </rect>
    </property>
@@ -214,6 +214,7 @@
     <property name="title">
      <string>工具</string>
     </property>
+    <addaction name="qAction_downloader"/>
     <addaction name="qAction_setting"/>
    </widget>
    <widget class="QMenu" name="qMenu_about">
@@ -265,6 +266,11 @@
   <action name="qAction_about">
    <property name="text">
     <string>关于</string>
+   </property>
+  </action>
+  <action name="qAction_downloader">
+   <property name="text">
+    <string>下载器</string>
    </property>
   </action>
  </widget>

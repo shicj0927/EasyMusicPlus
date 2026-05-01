@@ -1,5 +1,5 @@
-from PySide6.QtWidgets import QMainWindow
-from ui.ui_main_window import Ui_MainWindow
+from PyQt6.QtWidgets import QMainWindow
+from ui.ui_main_window import Ui_mainWindow
 from services.player_service import PlayerService
 
 class MainWindow(QMainWindow):
@@ -8,7 +8,7 @@ class MainWindow(QMainWindow):
         super().__init__()
         self.player_service = PlayerService()
 
-        self.ui = Ui_MainWindow()
+        self.ui = Ui_mainWindow()
         self.ui.setupUi(self)
 
         self.init_ui()
@@ -16,13 +16,14 @@ class MainWindow(QMainWindow):
 
     def init_ui(self):
         self.ui.qSplitter_mainSplitter.setSizes(
-            [200, 400, 300]
+            [200, 600, 200]
         )
 
     def bind_signals(self):
-        self.ui.qPushButton_control.clicked.connect(
-            self.toggle_play
-        )
-
-    def toggle_play(self):
-        self.player_service.play()
+        self.ui.qAction_quit.triggered.connect(self.close)
+        self.ui.qAction_downloader.triggered.connect(self.open_download_dialog)
+    
+    def open_download_dialog(self):
+        from app.download_dialog import DownloadDialog
+        dialog = DownloadDialog(self)
+        dialog.exec()
