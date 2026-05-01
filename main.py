@@ -4,10 +4,10 @@ from app.main_window import MainWindow
 app = QApplication([])
 
 window = MainWindow()
-# window.show()
+window.show()
 
-from app.download_dialog import DownloadDialog
-dialog = DownloadDialog()
-dialog.show()
+# from app.download_dialog import DownloadDialog
+# dialog = DownloadDialog()
+# dialog.show()
 
 app.exec()

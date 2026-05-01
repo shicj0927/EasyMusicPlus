@@ -22,8 +22,14 @@ class MainWindow(QMainWindow):
     def bind_signals(self):
         self.ui.qAction_quit.triggered.connect(self.close)
         self.ui.qAction_downloader.triggered.connect(self.open_download_dialog)
+        self.ui.qAction_about.triggered.connect(self.open_about_dialog)
     
     def open_download_dialog(self):
         from app.download_dialog import DownloadDialog
         dialog = DownloadDialog(self)
+        dialog.exec()
+    
+    def open_about_dialog(self):
+        from app.about_dialog import AboutDialog
+        dialog = AboutDialog()
         dialog.exec()
