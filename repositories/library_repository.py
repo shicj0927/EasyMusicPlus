@@ -2,6 +2,7 @@ import json
 from models.library import MediaLibrary, PlayList, Session
 from models.media import MediaItem, AudioTrack, VideoTrack, LyricTrack
 from dataclasses import asdict
+import shutil
 import os
 
 class LibraryRepository:
@@ -12,6 +13,7 @@ class LibraryRepository:
         self.library.master_folder = path
         if not os.path.exists(path):
             os.makedirs(path)
+        os.chdir(path)
         json_path = os.path.join(path, "library.json")
         if not os.path.exists(json_path):
             with open(json_path, "w") as f:
