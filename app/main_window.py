@@ -1,13 +1,15 @@
-from PyQt6.QtWidgets import QMainWindow, QFileDialog, QInputDialog, QMessageBox
+from PyQt6.QtWidgets import QMainWindow, QFileDialog, QInputDialog, QMessageBox, QApplication
 from ui.ui_main_window import Ui_mainWindow
 from managers.library_manager import LibraryManager
 from managers.play_manager import PlayManager,PlayMode
 from managers.player_manager import PlayerState
 from PyQt6.QtCore import QTimer
 from repositories.media_repository import download_result_to_media_item
+from utils import load_theme
 import os
 from utils import time_s_to_m_s
 import qtawesome as qta
+import qdarktheme
 
 class MainWindow(QMainWindow):
 
@@ -22,12 +24,15 @@ class MainWindow(QMainWindow):
         self.changing_slider=False
         self.init_ui()
         self.bind_signals()
+        self.theme="dark"
+        self.app=QApplication.instance()
+        self.app.setStyleSheet(qdarktheme.load_stylesheet("dark"))
         # self.libraryManager.load_library("./test/test")
         # self.load_playlists_to_ui()
     
     def set_icon(self,obj,icon):
         obj.setText("")
-        obj.setIcon(qta.icon(icon))
+        obj.setIcon(qta.icon(icon,color="#3daee9"))
 
     def init_ui(self):
         self.ui.qSplitter_mainSplitter.setSizes(
@@ -38,7 +43,7 @@ class MainWindow(QMainWindow):
         self.set_icon(self.ui.qPushButton_prev,"fa5s.backward")
         self.set_icon(self.ui.qPushButton_stop,"fa5s.stop")
         self.set_icon(self.ui.qPushButton_mode,"fa5s.list")
-        self.ui.qLabel_soundIcon.setPixmap(qta.icon("fa5s.volume-up").pixmap(16,16))
+        self.ui.qLabel_soundIcon.setPixmap(qta.icon("fa5s.volume-up",color="#3daee9").pixmap(16,16))
         self.ui.qSlider_soundBar.setValue(100)
 
     def bind_signals(self):
@@ -66,7 +71,14 @@ class MainWindow(QMainWindow):
         self.ui.qPushButton_prev.clicked.connect(self.on_prev)
         self.ui.qSlider_soundBar.valueChanged.connect(self.on_vol_changed)
         self.ui.qPushButton_mode.clicked.connect(self.change_play_mode)
-    
+        self.ui.qPushButton_theme.clicked.connect(self.change_theme)
+
+    def change_theme(self):
+        if self.theme=="dark":
+            self.theme="light"
+        else:
+            self.theme="dark"
+        self.app.setStyleSheet(qdarktheme.load_stylesheet(self.theme))
     
     def open_download_dialog(self):
         from app.download_dialog import DownloadDialog

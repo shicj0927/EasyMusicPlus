@@ -1,4 +1,5 @@
 import os
+from pathlib import Path
 
 def safe_file_name(name):
     dangerous_chars = r'\/:*?"<>|'
@@ -18,3 +19,8 @@ def get_rel_path(target):
     current = os.getcwd()
     rel_path = os.path.relpath(target, current)
     return rel_path
+
+def load_theme(self, name: str):
+    path = Path("themes") / f"{name}.qss"
+    with open(path, "r", encoding="utf-8") as f:
+        self.setStyleSheet(f.read())
