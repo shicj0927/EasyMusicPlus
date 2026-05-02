@@ -1,7 +1,7 @@
 from PyQt6.QtWidgets import QDialog,QHeaderView
 from ui.ui_download_dialog import Ui_qDialog_downloadDialog
-from services.search_worker import SearchWorker
-from services.download_worker import DownloadWorker
+from workers.search_worker import SearchWorker
+from workers.download_worker import DownloadWorker
 from PyQt6.QtCore import QThread
 from PyQt6.QtCore import pyqtSignal, pyqtSlot
 from PyQt6.QtCore import QStringListModel

@@ -24,10 +24,18 @@ class LibraryManager:
             raise RuntimeError("Library not loaded")
         return self.repository.library.play_lists
 
-    def get_playlist(self, index: int) -> PlayList:
+    def get_playlist_by_index(self, index: int) -> PlayList:
         if not self.loaded:
             raise RuntimeError("Library not loaded")
         return self.repository.library.play_lists[index]
+
+    def get_playlist_by_id(self, id: str) -> PlayList:
+        if not self.loaded:
+            raise RuntimeError("Library not loaded")
+        for l in self.repository.library.play_lists:
+            if l.id==id:
+                return l
+        raise RuntimeError("songlistId not found")
 
     def get_media_by_index(self, songlistId: str, index: int) -> MediaItem:
         if not self.loaded:
@@ -45,7 +53,7 @@ class LibraryManager:
                 for m in pl.media_items:
                     if(m.id==mediaId):
                         return m
-        raise RuntimeError("songlistId not found")
+        raise RuntimeError("mediaId not found")
     
     def gen_new_playlist_id(self):
         if not self.loaded:

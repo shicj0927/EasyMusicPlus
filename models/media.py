@@ -26,6 +26,15 @@ class LyricTrack:
         return cls(**data)
 
 @dataclass
+class LyricLine:
+    time_ms: int
+    text: str
+
+@dataclass
+class Lyric:
+    lines: list[LyricLine]=field(default_factory=list)
+
+@dataclass
 class MediaItem:
     id: str=""
     title: str=""

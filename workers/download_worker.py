@@ -4,7 +4,7 @@ import urllib.parse
 from PyQt6.QtCore import QObject, pyqtSignal, pyqtSlot
 from PyQt6.QtCore import QThread
 import os
-from services.utils import safe_file_name
+from utils import safe_file_name
 from yt_dlp import YoutubeDL
 import random
 

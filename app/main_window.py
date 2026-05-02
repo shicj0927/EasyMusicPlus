@@ -1,12 +1,13 @@
 from PyQt6.QtWidgets import QMainWindow, QFileDialog, QInputDialog, QMessageBox
 from ui.ui_main_window import Ui_mainWindow
 from managers.library_manager import LibraryManager
-from managers.play_manager import PlayManager
+from managers.play_manager import PlayManager,PlayMode
 from managers.player_manager import PlayerState
 from PyQt6.QtCore import QTimer
 from repositories.media_repository import download_result_to_media_item
 import os
-import mpv
+from utils import time_s_to_m_s
+import qtawesome as qta
 
 class MainWindow(QMainWindow):
 
@@ -21,13 +22,24 @@ class MainWindow(QMainWindow):
         self.changing_slider=False
         self.init_ui()
         self.bind_signals()
-        self.libraryManager.load_library("./test/test")
-        self.load_playlists_to_ui()
+        # self.libraryManager.load_library("./test/test")
+        # self.load_playlists_to_ui()
+    
+    def set_icon(self,obj,icon):
+        obj.setText("")
+        obj.setIcon(qta.icon(icon))
 
     def init_ui(self):
         self.ui.qSplitter_mainSplitter.setSizes(
             [200, 600, 200]
         )
+        self.set_icon(self.ui.qPushButton_control,"fa5s.play")
+        self.set_icon(self.ui.qPushButton_next,"fa5s.forward")
+        self.set_icon(self.ui.qPushButton_prev,"fa5s.backward")
+        self.set_icon(self.ui.qPushButton_stop,"fa5s.stop")
+        self.set_icon(self.ui.qPushButton_mode,"fa5s.list")
+        self.ui.qLabel_soundIcon.setPixmap(qta.icon("fa5s.volume-up").pixmap(16,16))
+        self.ui.qSlider_soundBar.setValue(100)
 
     def bind_signals(self):
         self.ui.qAction_quit.triggered.connect(self.close)
@@ -47,8 +59,13 @@ class MainWindow(QMainWindow):
         self.playManager.playerManager.durationChangedSignal.connect(self.on_duration_changed)
         self.playManager.playerManager.stateChangedSignal.connect(self.on_state_changed)
         self.playManager.playerManager.positionChangedSignal.connect(self.on_position_changed)
+        self.playManager.lyricChangedSignal.connect(self.on_lyric_changed)
         self.ui.qSlider_progressBar.valueChanged.connect(self.on_slider_value_changed)
         self.ui.qListWidget_songsList.doubleClicked.connect(self.on_song_double_clicked)
+        self.ui.qPushButton_next.clicked.connect(self.on_next)
+        self.ui.qPushButton_prev.clicked.connect(self.on_prev)
+        self.ui.qSlider_soundBar.valueChanged.connect(self.on_vol_changed)
+        self.ui.qPushButton_mode.clicked.connect(self.change_play_mode)
     
     
     def open_download_dialog(self):
@@ -135,7 +152,7 @@ class MainWindow(QMainWindow):
             self.current_playlist_id=None
             self.current_media_id=None
         else:
-            self.current_playlist_id=self.libraryManager.get_playlist(current_row).id
+            self.current_playlist_id=self.libraryManager.get_playlist_by_index(current_row).id
         self.load_playlist_to_ui()
     
     def on_song_selection_changed(self, current_row):
@@ -159,13 +176,40 @@ class MainWindow(QMainWindow):
     
     def on_duration_changed(self, duration):
         self.ui.qSlider_progressBar.setMaximum(int(duration))
+        self.ui.qLabel_progressLeft.setText("00:00/"+time_s_to_m_s(duration))
+        self.ui.qLabel_progressRight.setText(time_s_to_m_s(duration))
 
-    def on_state_changed(self, status):
-        pass
+    def on_state_changed(self, state):
+        print("get state:",state)
+        if state==PlayerState.STOPPED:
+            self.ui.qLabel_lyricAreaSongname.setText("")
+            self.ui.qLabel_lyric.setText("")
+            self.ui.qLabel_nowPlaying.setText("当前播放：-")
+            self.ui.qLabel_progressLeft.setText("--:--/--:--")
+            self.ui.qLabel_progressRight.setText("--:--")
+            self.set_icon(self.ui.qPushButton_control,"fa5s.play")
+        elif state==PlayerState.PLAYING:
+            media=self.playManager.get_current_media()
+            self.ui.qLabel_lyricAreaSongname.setText(media.title)
+            self.ui.qLabel_nowPlaying.setText("当前播放："+media.title)
+            self.set_icon(self.ui.qPushButton_control,"fa5s.pause")
+        elif state==PlayerState.PAUSED:
+            media=self.playManager.get_current_media()
+            self.ui.qLabel_nowPlaying.setText("当前播放："+media.title+"[暂停]")
+            self.set_icon(self.ui.qPushButton_control,"fa5s.play")
+        elif state==PlayerState.WAITING:
+            media=self.playManager.auto_play_next()
+            if self.playManager.check_type(media)=="video":
+                self.ui.qStackedWidget_playArea.setCurrentWidget(self.ui.qWidget_vedio)
+            else:
+                self.ui.qStackedWidget_playArea.setCurrentWidget(self.ui.qWidget_song)
 
     def on_position_changed(self, position):
         self.changing_slider=True
         self.ui.qSlider_progressBar.setValue(int(position))
+        duration=self.playManager.playerManager.get_duration()
+        self.ui.qLabel_progressLeft.setText(time_s_to_m_s(position)+"/"+time_s_to_m_s(duration))
+        self.ui.qLabel_progressRight.setText(time_s_to_m_s(duration-position))
         self.changing_slider=False
     
     def on_slider_value_changed(self):
@@ -173,10 +217,47 @@ class MainWindow(QMainWindow):
             seconds=self.ui.qSlider_progressBar.value()
             self.playManager.playerManager.seek_absolute(seconds)
     
+    def on_lyric_changed(self,text):
+        if self.playManager.playerManager.get_state()==PlayerState.STOPPED:
+            self.ui.qLabel_lyric.setText("")
+        elif text!=None:
+            self.ui.qLabel_lyric.setText(text)
+    
     def on_song_double_clicked(self):
         media=self.libraryManager.get_media_by_id(self.current_playlist_id,self.current_media_id)
         if self.playManager.check_type(media)=="video":
             self.ui.qStackedWidget_playArea.setCurrentWidget(self.ui.qWidget_vedio)
         else:
             self.ui.qStackedWidget_playArea.setCurrentWidget(self.ui.qWidget_song)
-        self.playManager.play(media)
+            # self.ui.qLabel_lyricAreaSongname.setText(media.title)
+            # self.ui.qLabel_lyric.setText("")
+        play_list=self.libraryManager.get_playlist_by_id(self.current_playlist_id)
+        self.playManager.play(media,play_list)
+    
+    def on_next(self):
+        media=self.playManager.play_next()
+        if self.playManager.check_type(media)=="video":
+            self.ui.qStackedWidget_playArea.setCurrentWidget(self.ui.qWidget_vedio)
+        else:
+            self.ui.qStackedWidget_playArea.setCurrentWidget(self.ui.qWidget_song)
+    
+    def on_vol_changed(self):
+        vol=self.ui.qSlider_soundBar.value()
+        self.playManager.playerManager.set_volume(vol)
+    
+    def on_prev(self):
+        media=self.playManager.play_prev()
+        if self.playManager.check_type(media)=="video":
+            self.ui.qStackedWidget_playArea.setCurrentWidget(self.ui.qWidget_vedio)
+        else:
+            self.ui.qStackedWidget_playArea.setCurrentWidget(self.ui.qWidget_song)
+    
+    def change_play_mode(self):
+        self.playManager.change_play_mode()
+        if self.playManager.play_mode==PlayMode.SEQUENCE:
+            self.set_icon(self.ui.qPushButton_mode,"fa5s.list")
+        elif self.playManager.play_mode==PlayMode.LOOP:
+            self.set_icon(self.ui.qPushButton_mode,"fa5s.sync")
+        elif self.playManager.play_mode==PlayMode.RANDOM:
+            self.set_icon(self.ui.qPushButton_mode,"fa5s.random")
+        print(self.playManager.play_mode)

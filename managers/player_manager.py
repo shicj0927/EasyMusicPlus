@@ -6,6 +6,10 @@ class PlayerState(Enum):
     STOPPED = 0
     PLAYING = 1
     PAUSED = 2
+    WAITING = 3   # waiting for next
+    DEBUG01 = 101
+    DEBUG02 = 102
+    DEBUG03 = 103
 
 class PlayerManager(QObject):
     positionChangedSignal = pyqtSignal(float)
@@ -16,23 +20,37 @@ class PlayerManager(QObject):
         super().__init__()
         self.player=mpv.MPV(wid=str(int(widget.winId())))
         self.timer = QTimer()
+        self.switching = False
         self.timer.timeout.connect(self.update_position)
         self.timer.start(200)
         self.state=PlayerState.STOPPED
 
         @self.player.event_callback("file-loaded")
         def on_loaded(event):
+            self.state=PlayerState.PLAYING
+            self.stateChangedSignal.emit(self.state)
             self.update_duration()
+            # self.switching=False
         
         @self.player.event_callback("end-file")
         def on_end(event):
+            # if self.switching:
+            #     return
             self.state=PlayerState.STOPPED
             self.stateChangedSignal.emit(self.state)
+            reason=event.data.reason
+            print(reason)
+            if reason==0:
+                self.state=PlayerState.WAITING
+                self.stateChangedSignal.emit(self.state)
 
     def play(self, path):
         self.player.play(path)
-        self.state=PlayerState.PLAYING
-        self.stateChangedSignal.emit(self.state)
+        # self.state=PlayerState.PLAYING
+        # self.stateChangedSignal.emit(self.state)
+    
+    def lock_switching(self):
+        self.switching=True
 
     def pause(self):
         if self.state!=PlayerState.PLAYING:
@@ -70,7 +88,7 @@ class PlayerManager(QObject):
         )
 
     def set_volume(self, volume):
-        self.player.volumn=volume
+        self.player.command("set", "volume", volume)
 
     def get_position(self):
         return self.player.time_pos or 0
@@ -83,3 +101,6 @@ class PlayerManager(QObject):
     
     def update_duration(self):
         self.durationChangedSignal.emit(self.get_duration())
+    
+    def get_state(self):
+        return self.state
