@@ -86,9 +86,10 @@ class Ui_qDialog_downloadDialog(object):
         self.qPushButton_browsePath = QtWidgets.QPushButton(parent=self.qWidget_downloadPage)
         self.qPushButton_browsePath.setObjectName("qPushButton_browsePath")
         self.qGridLayout_downloadInput.addWidget(self.qPushButton_browsePath, 2, 2, 1, 1)
-        self.qPushButton_moreOptions = QtWidgets.QPushButton(parent=self.qWidget_downloadPage)
-        self.qPushButton_moreOptions.setObjectName("qPushButton_moreOptions")
-        self.qGridLayout_downloadInput.addWidget(self.qPushButton_moreOptions, 2, 3, 1, 1)
+        self.qCheckBox_randomIdFlag = QtWidgets.QCheckBox(parent=self.qWidget_downloadPage)
+        self.qCheckBox_randomIdFlag.setChecked(True)
+        self.qCheckBox_randomIdFlag.setObjectName("qCheckBox_randomIdFlag")
+        self.qGridLayout_downloadInput.addWidget(self.qCheckBox_randomIdFlag, 2, 3, 1, 1)
         self.qVBoxLayout_downloadLayout.addLayout(self.qGridLayout_downloadInput)
         self.qTextBrowser_taskDetail = QtWidgets.QTextBrowser(parent=self.qWidget_downloadPage)
         self.qTextBrowser_taskDetail.setObjectName("qTextBrowser_taskDetail")
@@ -124,7 +125,7 @@ class Ui_qDialog_downloadDialog(object):
         self.qHBoxLayout_mainLayout.addWidget(self.qTabWidget_mainTabs)
 
         self.retranslateUi(qDialog_downloadDialog)
-        self.qTabWidget_mainTabs.setCurrentIndex(0)
+        self.qTabWidget_mainTabs.setCurrentIndex(1)
         QtCore.QMetaObject.connectSlotsByName(qDialog_downloadDialog)
 
     def retranslateUi(self, qDialog_downloadDialog):
@@ -142,7 +143,7 @@ class Ui_qDialog_downloadDialog(object):
         self.qPushButton_downloadId.setText(_translate("qDialog_downloadDialog", "下载"))
         self.qLabel_outputPath.setText(_translate("qDialog_downloadDialog", "路径"))
         self.qPushButton_browsePath.setText(_translate("qDialog_downloadDialog", "浏览"))
-        self.qPushButton_moreOptions.setText(_translate("qDialog_downloadDialog", "更多选项"))
+        self.qCheckBox_randomIdFlag.setText(_translate("qDialog_downloadDialog", "唯一id"))
         self.qLabel_downloadSpeed.setText(_translate("qDialog_downloadDialog", "0kB/s"))
         self.qPushButton_stopDownload.setText(_translate("qDialog_downloadDialog", "停止"))
         self.qPushButton_pauseDownload.setText(_translate("qDialog_downloadDialog", "暂停"))

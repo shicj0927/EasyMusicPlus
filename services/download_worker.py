@@ -6,6 +6,7 @@ from PyQt6.QtCore import QThread
 import os
 from services.utils import safe_file_name
 from yt_dlp import YoutubeDL
+import random
 
 
 class DownloadWorker(QObject):
@@ -17,11 +18,14 @@ class DownloadWorker(QObject):
     def __init__(self):
         super().__init__()
     
-    @pyqtSlot(object, str, str, str)
-    def download(self, songData, url, mediaId, path):
+    @pyqtSlot(object, str, str, str, bool)
+    def download(self, songData, url, mediaId, path, randomIdFlag):
         bilibiliHtmlCache=""
         neteaseHtmlCache={}
-        print(f"download: {songData}, {url}, {mediaId}, {path}")
+        print(f"download: {songData}, {url}, {mediaId}, {path}, {randomIdFlag}")
+        randomId=""
+        if randomIdFlag:
+            randomId ="-"+''.join(random.choices('abcdefghijklmnopqrstuvwxyz0123456789', k=8))
         headers = {
             "User-Agent": (
                 "Mozilla/5.0 (X11; Linux x86_64) "
@@ -141,6 +145,12 @@ class DownloadWorker(QObject):
             except:
                 songData["cover"]=""
             # print("neteaseHtmlCache:", neteaseHtmlCache)
+        songData["cover_url"]=songData["cover"]
+        songData["cover_path"]=None
+        songData["audio_path"]=None
+        songData["video_path"]=None
+        songData["lyric_path"]=None
+        songData["folder_path"]=None
         self.downloadLogSingnal.emit(f"获取到歌曲封面：{songData['cover']}")
         # 此时songData应该包含 id, source, title, artists, url, cover等信息
         self.downloadLogSingnal.emit(f"准备开始下载……")
@@ -149,7 +159,8 @@ class DownloadWorker(QObject):
         # 检查目录是否存在
         if not os.path.exists(path):
             os.makedirs(path)
-        path=os.path.join(path, safe_file_name(f"{songData['title']} - {', '.join(songData['artists'])}"))
+        path=os.path.join(path, safe_file_name(f"{songData['title']} - {', '.join(songData['artists'])}"))+randomId
+        songData["folder_path"]=path;
         if not os.path.exists(path):
             os.makedirs(path)
         try:
@@ -159,6 +170,7 @@ class DownloadWorker(QObject):
                 with open(coverPath, 'wb') as f:
                     f.write(response.content)
                 self.downloadLogSingnal.emit(f"封面下载完成，保存路径：{coverPath}")
+                songData["cover_path"] = coverPath
         except Exception as e:
             self.downloadLogSingnal.emit(f"封面下载失败：{str(e)}")
         # 开始下载
@@ -183,7 +195,8 @@ class DownloadWorker(QObject):
             try:
                 with YoutubeDL(ydl_opts) as ydl:
                     ydl.download([songData["url"]])
-                self.downloadFinishedSignal.emit({"status":"success","message":f"下载完成，保存路径：{path}"})
+                songData["video_path"]=os.path.join(path, safe_file_name(f"{songData['title']} - {', '.join(songData['artists'])}.mp4"))
+                self.downloadFinishedSignal.emit({"status":"success","message":f"下载完成，保存路径：{path}","result":songData})
             except Exception as e:
                 self.downloadFinishedSignal.emit({"status":"error","message":f"下载失败：{str(e)}"})
         elif songData["source"]=="netease":
@@ -202,6 +215,7 @@ class DownloadWorker(QObject):
                     with open(lyricPath, 'w', encoding='utf-8') as f:
                         f.write(lyricContent)
                     self.downloadLogSingnal.emit(f"歌词下载完成，保存路径：{lyricPath}")
+                    songData["lyric_path"]=lyricPath
                 else:
                     self.downloadLogSingnal.emit("未找到歌词信息")
             else:
@@ -233,6 +247,7 @@ class DownloadWorker(QObject):
                                 downloaded_length += len(chunk)
                                 progress = int(downloaded_length / total_length * 100)
                                 self.procressUpdateSignal.emit(progress)
-                self.downloadFinishedSignal.emit({"status":"success","message":f"下载完成，保存路径：{filePath}"})
+                songData["audio_path"]=filePath
+                self.downloadFinishedSignal.emit({"status":"success","message":f"下载完成，保存路径：{filePath}","result":songData})
             except Exception as e:
                 self.downloadFinishedSignal.emit({"status":"error","message":f"下载失败：{str(e)}"})

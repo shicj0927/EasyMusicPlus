@@ -6,3 +6,6 @@ X connection to :0 broken (explicit kill or server shutdown).
 QObject::startTimer: Timers can only be used with threads started with QThread
 QObject::startTimer: Timers can only be used with threads started with QThread
 QObject::startTimer: Timers can only be used with threads started with QThread
+The X11 connection broke: I/O error (code 1)
+XIO:  fatal IO error 2 (没有那个文件或目录) on X server ":0"
+      after 54577 requests (390 known processed) with 0 events remaining.

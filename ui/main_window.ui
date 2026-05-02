@@ -24,7 +24,7 @@
        </sizepolicy>
       </property>
       <property name="orientation">
-       <enum>Qt::Orientation::Horizontal</enum>
+       <enum>Qt::Horizontal</enum>
       </property>
       <widget class="QWidget" name="qWidget_listsArea">
        <layout class="QVBoxLayout" name="qVBoxLayout_listsArea">
@@ -38,38 +38,93 @@
         <item>
          <widget class="QListWidget" name="qListWidget_listsList"/>
         </item>
-       </layout>
-      </widget>
-      <widget class="QWidget" name="qWidget_infoArea">
-       <layout class="QVBoxLayout" name="qVBoxLayout_infoArea">
         <item>
-         <widget class="QLabel" name="qLabel_nowPlayingInfo">
-          <property name="text">
-           <string>无曲目</string>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <layout class="QHBoxLayout" name="qHBoxLayout_lyricArea">
+         <layout class="QHBoxLayout" name="horizontalLayout_2">
           <item>
-           <widget class="QListWidget" name="qListWidget_lyricList">
-            <item>
-             <property name="text">
-              <string>无歌词</string>
-             </property>
-            </item>
+           <widget class="QPushButton" name="qPushButton_addSongList">
+            <property name="text">
+             <string>新建歌单</string>
+            </property>
            </widget>
           </item>
           <item>
-           <widget class="QScrollBar" name="qScrollBar_lyricScrollBar">
-            <property name="orientation">
-             <enum>Qt::Orientation::Vertical</enum>
+           <widget class="QPushButton" name="qPushButton_removeSongList">
+            <property name="text">
+             <string>删除歌单</string>
             </property>
            </widget>
           </item>
          </layout>
         </item>
        </layout>
+      </widget>
+      <widget class="QStackedWidget" name="qStackedWidget_playArea">
+       <property name="currentIndex">
+        <number>1</number>
+       </property>
+       <widget class="QWidget" name="qWidget_vedio" native="true">
+        <layout class="QVBoxLayout" name="qVBoxLayout_playerArea"/>
+       </widget>
+       <widget class="QWidget" name="qWidget_song">
+        <layout class="QVBoxLayout" name="verticalLayout">
+         <item>
+          <spacer name="verticalSpacer_2">
+           <property name="orientation">
+            <enum>Qt::Vertical</enum>
+           </property>
+           <property name="sizeHint" stdset="0">
+            <size>
+             <width>20</width>
+             <height>40</height>
+            </size>
+           </property>
+          </spacer>
+         </item>
+         <item>
+          <widget class="QLabel" name="qLabel_lyricAreaSongname">
+           <property name="font">
+            <font>
+             <pointsize>25</pointsize>
+            </font>
+           </property>
+           <property name="text">
+            <string/>
+           </property>
+           <property name="alignment">
+            <set>Qt::AlignCenter</set>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QLabel" name="qLabel_lyric">
+           <property name="font">
+            <font>
+             <pointsize>15</pointsize>
+            </font>
+           </property>
+           <property name="text">
+            <string/>
+           </property>
+           <property name="alignment">
+            <set>Qt::AlignCenter</set>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <spacer name="verticalSpacer">
+           <property name="orientation">
+            <enum>Qt::Vertical</enum>
+           </property>
+           <property name="sizeHint" stdset="0">
+            <size>
+             <width>20</width>
+             <height>40</height>
+            </size>
+           </property>
+          </spacer>
+         </item>
+        </layout>
+       </widget>
       </widget>
       <widget class="QWidget" name="qWidget_songsArea">
        <layout class="QVBoxLayout" name="qVBoxLayout_songsArea">
@@ -82,6 +137,24 @@
         </item>
         <item>
          <widget class="QListWidget" name="qListWidget_songsList"/>
+        </item>
+        <item>
+         <layout class="QHBoxLayout" name="horizontalLayout_3">
+          <item>
+           <widget class="QPushButton" name="qPushButton_addSong">
+            <property name="text">
+             <string>添加歌曲</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QPushButton" name="qPushButton_removeSong">
+            <property name="text">
+             <string>删除歌曲</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
         </item>
        </layout>
       </widget>
@@ -106,7 +179,7 @@
       <item>
        <widget class="QSlider" name="qSlider_progressBar">
         <property name="orientation">
-         <enum>Qt::Orientation::Horizontal</enum>
+         <enum>Qt::Horizontal</enum>
         </property>
        </widget>
       </item>
@@ -159,12 +232,12 @@
       <item>
        <spacer name="horizontalSpacer">
         <property name="orientation">
-         <enum>Qt::Orientation::Horizontal</enum>
+         <enum>Qt::Horizontal</enum>
         </property>
         <property name="sizeHint" stdset="0">
          <size>
-          <width>40</width>
-          <height>20</height>
+          <width>20</width>
+          <height>40</height>
          </size>
         </property>
        </spacer>
@@ -179,7 +252,7 @@
       <item>
        <widget class="QSlider" name="qSlider_soundBar">
         <property name="orientation">
-         <enum>Qt::Orientation::Horizontal</enum>
+         <enum>Qt::Horizontal</enum>
         </property>
        </widget>
       </item>
@@ -203,11 +276,6 @@
     <addaction name="qAction_openDB"/>
     <addaction name="qAction_newDB"/>
     <addaction name="separator"/>
-    <addaction name="qAction_openList"/>
-    <addaction name="qAction_newList"/>
-    <addaction name="separator"/>
-    <addaction name="qAction_openSong"/>
-    <addaction name="separator"/>
     <addaction name="qAction_quit"/>
    </widget>
    <widget class="QMenu" name="qMenu_tool">
@@ -215,13 +283,13 @@
      <string>工具</string>
     </property>
     <addaction name="qAction_downloader"/>
-    <addaction name="qAction_setting"/>
    </widget>
    <widget class="QMenu" name="qMenu_about">
     <property name="title">
      <string>关于</string>
     </property>
     <addaction name="qAction_about"/>
+    <addaction name="qAction_aboutQt"/>
    </widget>
    <addaction name="qMenu_file"/>
    <addaction name="qMenu_tool"/>
@@ -271,6 +339,11 @@
   <action name="qAction_downloader">
    <property name="text">
     <string>下载器</string>
+   </property>
+  </action>
+  <action name="qAction_aboutQt">
+   <property name="text">
+    <string>Qt</string>
    </property>
   </action>
  </widget>

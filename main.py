@@ -1,3 +1,7 @@
+import os
+
+os.environ["LC_NUMERIC"] = "C"
+
 from PyQt6.QtWidgets import QApplication
 from app.main_window import MainWindow
 

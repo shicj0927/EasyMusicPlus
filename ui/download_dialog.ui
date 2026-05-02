@@ -17,7 +17,7 @@
    <item>
     <widget class="QTabWidget" name="qTabWidget_mainTabs">
      <property name="currentIndex">
-      <number>0</number>
+      <number>1</number>
      </property>
      <widget class="QWidget" name="qWidget_searchPage">
       <attribute name="title">
@@ -151,9 +151,12 @@
           </widget>
          </item>
          <item row="2" column="3">
-          <widget class="QPushButton" name="qPushButton_moreOptions">
+          <widget class="QCheckBox" name="qCheckBox_randomIdFlag">
            <property name="text">
-            <string>更多选项</string>
+            <string>唯一id</string>
+           </property>
+           <property name="checked">
+            <bool>true</bool>
            </property>
           </widget>
          </item>
