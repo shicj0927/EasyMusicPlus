@@ -169,3 +169,9 @@ class DownloadDialog(QDialog):
                 self.thread.quit()
                 self.thread.wait()
                 self.accept()
+    
+    def closeEvent(self, a0):
+        print("Dialog closing... stopping thread")
+        self.thread.quit()
+        self.thread.wait()
+        self.accept()
