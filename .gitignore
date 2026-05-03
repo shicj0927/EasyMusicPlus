@@ -6,3 +6,4 @@ downloads/
 nohup.*
 test/
 .VSCodeCounter/
+session.*

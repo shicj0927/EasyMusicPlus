@@ -5,6 +5,7 @@ from managers.play_manager import PlayManager,PlayMode
 from managers.player_manager import PlayerState
 from PyQt6.QtCore import QTimer
 from repositories.media_repository import download_result_to_media_item
+from managers.session_manager import SessionManager,Session
 from utils import load_theme
 import os
 from utils import time_s_to_m_s
@@ -17,8 +18,12 @@ class MainWindow(QMainWindow):
         super().__init__()
         self.ui = Ui_mainWindow()
         self.ui.setupUi(self)
-        self.libraryManager = LibraryManager()
+        self.sessionManager=SessionManager()
+        self.libraryManager=LibraryManager()
         self.playManager=PlayManager(self.ui.qWidget_vedio)
+        self.timer_5s=QTimer()
+        self.timer_5s.setInterval(5000)
+        self.timer_5s.start()
         self.current_playlist_id=None
         self.current_media_id=None
         self.changing_slider=False
@@ -27,6 +32,8 @@ class MainWindow(QMainWindow):
         self.theme="dark"
         self.app=QApplication.instance()
         self.app.setStyleSheet(qdarktheme.load_stylesheet("dark"))
+        self.sessionManager.load_session()
+        self.apply_session()
         # self.libraryManager.load_library("./test/test")
         # self.load_playlists_to_ui()
     
@@ -72,6 +79,7 @@ class MainWindow(QMainWindow):
         self.ui.qSlider_soundBar.valueChanged.connect(self.on_vol_changed)
         self.ui.qPushButton_mode.clicked.connect(self.change_play_mode)
         self.ui.qPushButton_theme.clicked.connect(self.change_theme)
+        self.timer_5s.timeout.connect(self.update_session)
 
     def change_theme(self):
         if self.theme=="dark":
@@ -79,6 +87,26 @@ class MainWindow(QMainWindow):
         else:
             self.theme="dark"
         self.app.setStyleSheet(qdarktheme.load_stylesheet(self.theme))
+        self.update_session()
+    
+    def apply_session(self):
+        session=self.sessionManager.get_session()
+        print(session)
+        self.theme=session.theme
+        self.app.setStyleSheet(qdarktheme.load_stylesheet(self.theme))
+        self.ui.qSlider_soundBar.setValue(session.vol)
+        if session.lib!="" and session.lib!=None:
+            self.libraryManager.load_library(session.lib)
+            self.load_playlists_to_ui()
+    
+    def update_session(self):
+        session=Session()
+        session.theme=self.theme
+        session.vol=self.ui.qSlider_soundBar.value()
+        if self.libraryManager.is_loaded:
+            session.lib=os.getcwd()
+        print("update session:",session)
+        self.sessionManager.set_session(session)
     
     def open_download_dialog(self):
         from app.download_dialog import DownloadDialog
@@ -103,6 +131,7 @@ class MainWindow(QMainWindow):
                     self.load_playlists_to_ui()
                 else:
                     print("名称已存在！")
+        self.update_session()
     
     def open_library(self):
         library_path=QFileDialog.getOpenFileName(self, "选择媒体库文件", filter="JSON Files (library.json)")[0]
@@ -110,6 +139,7 @@ class MainWindow(QMainWindow):
             library_path=os.path.dirname(library_path)
             self.libraryManager.load_library(library_path)
         self.load_playlists_to_ui()
+        self.update_session()
     
     def load_playlists_to_ui(self):
         playlists=self.libraryManager.get_playlists()
