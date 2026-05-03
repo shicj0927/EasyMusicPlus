@@ -378,3 +378,12 @@ class MainWindow(QMainWindow):
         elif self.playManager.play_mode==PlayMode.RANDOM:
             self.set_icon(self.ui.qPushButton_mode,"fa5s.random")
         print(self.playManager.play_mode)
+    
+    def closeEvent(self, event):
+        print("stopping mpv")
+        try:
+            self.playManager.playerManager.player.stop()
+            self.playManager.playerManager.player.terminate()
+        except Exception:
+            pass
+        event.accept()
