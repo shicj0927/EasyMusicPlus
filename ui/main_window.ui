@@ -68,20 +68,13 @@
        <widget class="QWidget" name="qWidget_song">
         <layout class="QVBoxLayout" name="verticalLayout">
          <item>
-          <spacer name="verticalSpacer_2">
-           <property name="orientation">
-            <enum>Qt::Vertical</enum>
-           </property>
-           <property name="sizeHint" stdset="0">
-            <size>
-             <width>20</width>
-             <height>40</height>
-            </size>
-           </property>
-          </spacer>
-         </item>
-         <item>
           <widget class="QLabel" name="qLabel_lyricAreaSongname">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
            <property name="font">
             <font>
              <pointsize>25</pointsize>
@@ -96,32 +89,21 @@
           </widget>
          </item>
          <item>
-          <widget class="QLabel" name="qLabel_lyric">
-           <property name="font">
-            <font>
-             <pointsize>15</pointsize>
-            </font>
+          <widget class="QScrollArea" name="qScrollArea_lyrics">
+           <property name="widgetResizable">
+            <bool>true</bool>
            </property>
-           <property name="text">
-            <string/>
-           </property>
-           <property name="alignment">
-            <set>Qt::AlignCenter</set>
-           </property>
+           <widget class="QWidget" name="scrollAreaWidgetContents">
+            <property name="geometry">
+             <rect>
+              <x>0</x>
+              <y>0</y>
+              <width>68</width>
+              <height>456</height>
+             </rect>
+            </property>
+           </widget>
           </widget>
-         </item>
-         <item>
-          <spacer name="verticalSpacer">
-           <property name="orientation">
-            <enum>Qt::Vertical</enum>
-           </property>
-           <property name="sizeHint" stdset="0">
-            <size>
-             <width>20</width>
-             <height>40</height>
-            </size>
-           </property>
-          </spacer>
          </item>
         </layout>
        </widget>
@@ -275,6 +257,18 @@
       </item>
       <item>
        <widget class="QSlider" name="qSlider_soundBar">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="minimumSize">
+         <size>
+          <width>150</width>
+          <height>0</height>
+         </size>
+        </property>
         <property name="orientation">
          <enum>Qt::Horizontal</enum>
         </property>

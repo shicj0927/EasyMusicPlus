@@ -40,5 +40,14 @@ class LyricManager:
         if index >= 0:
             return self.lyric.lines[index].text
         return None
+    
+    def get_current_lyric_index(self, time_ms):
+        times = [line.time_ms for line in self.lyric.lines]
+        index = bisect.bisect_right(times, time_ms) - 1
+        if index >= 0:
+            return index
+        return None
 
+    def get_lyric_lines(self):
+        return self.lyric.lines
     

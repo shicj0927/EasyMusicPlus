@@ -1,9 +1,12 @@
-from PyQt6.QtWidgets import QMainWindow, QFileDialog, QInputDialog, QMessageBox, QApplication
+from PyQt6.QtWidgets import QMainWindow, QFileDialog, QInputDialog, QMessageBox
+from PyQt6.QtWidgets import QApplication, QListWidgetItem, QLabel, QWidget, QVBoxLayout
 from ui.ui_main_window import Ui_mainWindow
 from managers.library_manager import LibraryManager
 from managers.play_manager import PlayManager,PlayMode
 from managers.player_manager import PlayerState
-from PyQt6.QtCore import QTimer
+from PyQt6.QtCore import QTimer, Qt
+from PyQt6.QtCore import QPropertyAnimation, QEasingCurve
+from PyQt6.QtGui import QFont
 from repositories.media_repository import download_result_to_media_item
 from managers.session_manager import SessionManager,Session
 from utils import load_theme
@@ -27,6 +30,7 @@ class MainWindow(QMainWindow):
         self.current_playlist_id=None
         self.current_media_id=None
         self.changing_slider=False
+        self.lyricLabels = []
         self.init_ui()
         self.bind_signals()
         self.theme="dark"
@@ -52,6 +56,14 @@ class MainWindow(QMainWindow):
         self.set_icon(self.ui.qPushButton_mode,"fa5s.list")
         self.ui.qLabel_soundIcon.setPixmap(qta.icon("fa5s.volume-up",color="#3daee9").pixmap(16,16))
         self.ui.qSlider_soundBar.setValue(100)
+        self.lyricContainer = QWidget()
+        self.lyricLayout = QVBoxLayout()
+        self.lyricLayout.setSpacing(5)
+        self.lyricLayout.setContentsMargins(10, 10, 10, 10)
+        self.lyricContainer.setLayout(self.lyricLayout)
+        self.ui.qScrollArea_lyrics.setWidget(self.lyricContainer)
+        self.ui.qScrollArea_lyrics.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
+        self.ui.qScrollArea_lyrics.setVerticalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
 
     def bind_signals(self):
         self.ui.qAction_quit.triggered.connect(self.close)
@@ -221,11 +233,19 @@ class MainWindow(QMainWindow):
         self.ui.qLabel_progressLeft.setText("00:00/"+time_s_to_m_s(duration))
         self.ui.qLabel_progressRight.setText(time_s_to_m_s(duration))
 
+    def clear_lyrics(self):
+        while self.lyricLayout.count():
+            item = self.lyricLayout.takeAt(0)
+            widget = item.widget()
+            if widget is not None:
+                widget.deleteLater()
+        self.lyricLabels.clear()
+
     def on_state_changed(self, state):
         print("get state:",state)
         if state==PlayerState.STOPPED:
             self.ui.qLabel_lyricAreaSongname.setText("")
-            self.ui.qLabel_lyric.setText("")
+            self.clear_lyrics()
             self.ui.qLabel_nowPlaying.setText("当前播放：-")
             self.ui.qLabel_progressLeft.setText("--:--/--:--")
             self.ui.qLabel_progressRight.setText("--:--")
@@ -233,6 +253,20 @@ class MainWindow(QMainWindow):
         elif state==PlayerState.PLAYING:
             media=self.playManager.get_current_media()
             self.ui.qLabel_lyricAreaSongname.setText(media.title)
+            lyric_lines=self.playManager.lyricManager.get_lyric_lines()
+            for line in lyric_lines:
+                label = QLabel(line.text)
+                label.setWordWrap(True)
+                label.setAlignment(Qt.AlignmentFlag.AlignCenter)
+                font = QFont()
+                font.setPointSize(13)
+                label.setFont(font)
+                label.setStyleSheet("""
+                    color: gray;
+                    padding: 5px;
+                """)
+                self.lyricLayout.addWidget(label)
+                self.lyricLabels.append(label)
             self.ui.qLabel_nowPlaying.setText("当前播放："+media.title)
             self.set_icon(self.ui.qPushButton_control,"fa5s.pause")
         elif state==PlayerState.PAUSED:
@@ -259,11 +293,54 @@ class MainWindow(QMainWindow):
             seconds=self.ui.qSlider_progressBar.value()
             self.playManager.playerManager.seek_absolute(seconds)
     
-    def on_lyric_changed(self,text):
-        if self.playManager.playerManager.get_state()==PlayerState.STOPPED:
-            self.ui.qLabel_lyric.setText("")
-        elif text!=None:
-            self.ui.qLabel_lyric.setText(text)
+    def on_lyric_changed(self, index):
+        if index < 0 or index >= len(self.lyricLabels):
+            return
+        for label in self.lyricLabels:
+            font = label.font()
+            font.setPointSize(13)
+            font.setBold(False)
+            label.setFont(font)
+            label.setStyleSheet("""
+                color: gray;
+                padding: 5px;
+            """)
+        current_label = self.lyricLabels[index]
+        font = current_label.font()
+        font.setPointSize(15)
+        font.setBold(True)
+        current_label.setFont(font)
+        if self.theme=="dark":
+            current_label.setStyleSheet("""
+                color: white;
+                padding: 5px;
+            """)
+        else:
+            current_label.setStyleSheet("""
+                color: black;
+                padding: 5px;
+            """)
+        scroll_area = self.ui.qScrollArea_lyrics
+        scrollbar = scroll_area.verticalScrollBar()
+        target = (
+            current_label.y()
+            - scroll_area.viewport().height() // 2
+            + current_label.height() // 2
+        )
+        target = max(0, target)
+        self.lyricAnimation = QPropertyAnimation(
+            scrollbar,
+            b"value"
+        )
+        self.lyricAnimation.setDuration(300)
+        self.lyricAnimation.setStartValue(
+            scrollbar.value()
+        )
+        self.lyricAnimation.setEndValue(target)
+        self.lyricAnimation.setEasingCurve(
+            QEasingCurve.Type.OutCubic
+        )
+        self.lyricAnimation.start()
     
     def on_song_double_clicked(self):
         media=self.libraryManager.get_media_by_id(self.current_playlist_id,self.current_media_id)
@@ -271,8 +348,6 @@ class MainWindow(QMainWindow):
             self.ui.qStackedWidget_playArea.setCurrentWidget(self.ui.qWidget_vedio)
         else:
             self.ui.qStackedWidget_playArea.setCurrentWidget(self.ui.qWidget_song)
-            # self.ui.qLabel_lyricAreaSongname.setText(media.title)
-            # self.ui.qLabel_lyric.setText("")
         play_list=self.libraryManager.get_playlist_by_id(self.current_playlist_id)
         self.playManager.play(media,play_list)
     

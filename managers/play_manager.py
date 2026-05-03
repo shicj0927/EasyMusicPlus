@@ -12,7 +12,7 @@ class PlayMode(Enum):
     RANDOM = 2
 
 class PlayManager(QObject):
-    lyricChangedSignal=pyqtSignal(str)
+    lyricChangedSignal=pyqtSignal(int)
 
     def __init__(self,widget):
         super().__init__()
@@ -31,7 +31,7 @@ class PlayManager(QObject):
     
     def on_position_changed(self,time_s):
         time_ms=int(time_s*1000)
-        self.lyricChangedSignal.emit(self.lyricManager.get_current_lyric(time_ms))
+        self.lyricChangedSignal.emit(self.lyricManager.get_current_lyric_index(time_ms))
     
     def play(self,media:MediaItem,play_list=None):
         self.media=media

@@ -9,26 +9,6 @@ from PyQt6.QtGui import QStandardItemModel, QStandardItem
 from PyQt6.QtWidgets import QStyledItemDelegate, QPushButton, QApplication, QStyle
 from PyQt6.QtCore import Qt
 
-class DownloadButtonDelegate(QStyledItemDelegate):
-    downloadClicked = pyqtSignal(int)
-    def paint(self, painter, option, index):
-        if index.column() == 2:
-            from PyQt6.QtWidgets import QStyleOptionButton
-            button = QStyleOptionButton()
-            button.rect = option.rect
-            button.text = "下载"
-            button.state = QStyle.StateFlag.State_Enabled
-            QApplication.style().drawControl(QApplication.style().ControlElement.CE_PushButton,button,painter)
-        else:
-            super().paint(painter, option, index)
-    def editorEvent(self, event, model, option, index):
-        if index.column() == 2 and event.type() == event.Type.MouseButtonRelease:
-            row = index.row()
-            print("点击下载：第", row, "行")
-            self.downloadClicked.emit(index.row())
-            return True
-        return False
-
 class DownloadDialog(QDialog):
     startSearchSignal = pyqtSignal(str,str,int,int)
     startDownloadSignal = pyqtSignal(object,str,str,str,bool)
@@ -54,9 +34,6 @@ class DownloadDialog(QDialog):
         self.thread.start()
         self.init_ui()
         self.bind_signals()
-        self.delegate = DownloadButtonDelegate(self.ui.qTableView_searchResult)
-        self.ui.qTableView_searchResult.setItemDelegate(self.delegate)
-        self.delegate.downloadClicked.connect(self.on_download_with_info_clicked)
         self.nowSearchResult = None
 
     def init_ui(self):
@@ -94,19 +71,30 @@ class DownloadDialog(QDialog):
         else:
             source="bilibili"
         self.startSearchSignal.emit(keyword, source, 20, 1)
-    
+
     def on_search_finished(self, result):
         self.nowSearchResult = result
         model = QStandardItemModel()
         model.setHorizontalHeaderLabels(["歌曲", "歌手", "下载"])
-        for i in result:
+        self.ui.qTableView_searchResult.setModel(model)
+        for row, i in enumerate(result):
             name = QStandardItem(i["name"])
             name.setToolTip(i["name"])
-            artist = QStandardItem(",".join(i["artist"]))
-            artist.setToolTip(",".join(i["artist"]))
-            download = QStandardItem("下载")
-            model.appendRow([name, artist, download])
-        self.ui.qTableView_searchResult.setModel(model)
+            artist_text = ",".join(i["artist"])
+            artist = QStandardItem(artist_text)
+            artist.setToolTip(artist_text)
+            download_item = QStandardItem()
+            model.appendRow([
+                name,
+                artist,
+                download_item
+            ])
+            btn = QPushButton("下载")
+            btn.clicked.connect(
+                lambda _, r=row: self.on_download_with_info_clicked(r)
+            )
+            index = model.index(row, 2)
+            self.ui.qTableView_searchResult.setIndexWidget(index, btn)
     
     def on_download_with_info_clicked(self, row):
         if 0 <= row < len(self.nowSearchResult):
