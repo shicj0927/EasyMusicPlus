@@ -6,4 +6,4 @@ downloads/
 nohup.*
 test/
 .VSCodeCounter/
-session.*
+session.json
