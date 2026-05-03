@@ -380,10 +380,4 @@ class MainWindow(QMainWindow):
         print(self.playManager.play_mode)
     
     def closeEvent(self, event):
-        print("stopping mpv")
-        try:
-            self.playManager.playerManager.player.stop()
-            self.playManager.playerManager.player.terminate()
-        except Exception:
-            pass
-        event.accept()
+        exit()
