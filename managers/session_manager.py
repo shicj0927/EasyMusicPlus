@@ -2,6 +2,8 @@ import os
 from models.session import Session
 from dataclasses import asdict
 import json
+import traceback
+
 
 class SessionManager:
     def __init__(self):
@@ -10,12 +12,16 @@ class SessionManager:
         self.session=Session()
     
     def load_session(self):
-        if not os.path.exists(self.path):
-            with open(self.path, "w") as f:
-                json.dump(asdict(self.session),f,indent=4)
-        with open(self.path,"r") as f:
-            data=json.load(f)
-        self.session=Session.from_dict(data)
+        try:
+            if not os.path.exists(self.path):
+                with open(self.path, "w") as f:
+                    json.dump(asdict(self.session),f,indent=4)
+            with open(self.path,"r") as f:
+                data=json.load(f)
+            self.session=Session.from_dict(data)
+        except Exception as e:
+            traceback.print_exc(e)
+            return Session()
     
     def save_session(self):
         with open(self.path+".tmp", "w") as f:

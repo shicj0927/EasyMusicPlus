@@ -70,7 +70,7 @@ class DownloadDialog(QDialog):
             source="netease"
         else:
             source="bilibili"
-        self.startSearchSignal.emit(keyword, source, 20, 1)
+        self.startSearchSignal.emit(keyword, source, 60, 1)
 
     def on_search_finished(self, result):
         self.nowSearchResult = result

@@ -17,7 +17,7 @@
    <item>
     <widget class="QTabWidget" name="qTabWidget_mainTabs">
      <property name="currentIndex">
-      <number>1</number>
+      <number>0</number>
      </property>
      <widget class="QWidget" name="qWidget_searchPage">
       <attribute name="title">
@@ -28,6 +28,12 @@
         <layout class="QHBoxLayout" name="qHBoxLayout_searchBar">
          <item>
           <widget class="QComboBox" name="qComboBox_searchSource">
+           <property name="minimumSize">
+            <size>
+             <width>100</width>
+             <height>0</height>
+            </size>
+           </property>
            <item>
             <property name="text">
              <string>网易云</string>
@@ -55,36 +61,18 @@
        <item>
         <layout class="QHBoxLayout" name="qHBoxLayout_searchResult">
          <item>
-          <widget class="QTableView" name="qTableView_searchResult"/>
-         </item>
-        </layout>
-       </item>
-       <item>
-        <layout class="QHBoxLayout" name="qHBoxLayout_searchControl">
-         <item>
-          <spacer name="qSpacer_searchControl">
-           <property name="orientation">
-            <enum>Qt::Horizontal</enum>
+          <widget class="QTableView" name="qTableView_searchResult">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
            </property>
-           <property name="sizeHint" stdset="0">
+           <property name="minimumSize">
             <size>
-             <width>40</width>
-             <height>20</height>
+             <width>0</width>
+             <height>0</height>
             </size>
-           </property>
-          </spacer>
-         </item>
-         <item>
-          <widget class="QPushButton" name="qPushButton_clearSearch">
-           <property name="text">
-            <string>清空</string>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QPushButton" name="qPushButton_nextPage">
-           <property name="text">
-            <string>下一页</string>
            </property>
           </widget>
          </item>
@@ -177,44 +165,6 @@
           <widget class="QProgressBar" name="qProgressBar_download">
            <property name="value">
             <number>24</number>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QLabel" name="qLabel_downloadSpeed">
-           <property name="text">
-            <string>0kB/s</string>
-           </property>
-          </widget>
-         </item>
-        </layout>
-       </item>
-       <item>
-        <layout class="QHBoxLayout" name="qHBoxLayout_downloadControl">
-         <item>
-          <spacer name="qSpacer_downloadControl">
-           <property name="orientation">
-            <enum>Qt::Horizontal</enum>
-           </property>
-           <property name="sizeHint" stdset="0">
-            <size>
-             <width>40</width>
-             <height>20</height>
-            </size>
-           </property>
-          </spacer>
-         </item>
-         <item>
-          <widget class="QPushButton" name="qPushButton_stopDownload">
-           <property name="text">
-            <string>停止</string>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QPushButton" name="qPushButton_pauseDownload">
-           <property name="text">
-            <string>暂停</string>
            </property>
           </widget>
          </item>

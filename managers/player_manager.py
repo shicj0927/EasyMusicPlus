@@ -18,7 +18,11 @@ class PlayerManager(QObject):
 
     def __init__(self,widget):
         super().__init__()
-        self.player=mpv.MPV(wid=str(int(widget.winId())))
+        self.player=mpv.MPV(
+            wid=str(int(widget.winId())),
+            vo="gpu-next",
+            hwdec="auto-safe"
+        )
         self.timer = QTimer()
         self.switching = False
         self.timer.timeout.connect(self.update_position)
