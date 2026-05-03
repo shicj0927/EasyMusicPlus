@@ -66,11 +66,13 @@ class DownloadDialog(QDialog):
     def start_search(self):
         keyword = self.ui.qLineEdit_searchKeyword.text()
         source = self.ui.qComboBox_searchSource.currentText()
+        num=20
         if source=="网易云":
             source="netease"
+            num=60
         else:
             source="bilibili"
-        self.startSearchSignal.emit(keyword, source, 60, 1)
+        self.startSearchSignal.emit(keyword, source, num, 1)
 
     def on_search_finished(self, result):
         self.nowSearchResult = result
