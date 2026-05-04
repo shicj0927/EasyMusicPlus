@@ -1,5 +1,5 @@
 import mpv
-from PyQt6.QtCore import QObject, pyqtSignal, pyqtSlot, QTimer
+from PyQt6.QtCore import QObject, pyqtSignal, pyqtSlot, QTimer, Qt
 from enum import Enum
 
 class PlayerState(Enum):
@@ -18,6 +18,9 @@ class PlayerManager(QObject):
 
     def __init__(self,widget):
         super().__init__()
+        widget.setAttribute(
+            Qt.WidgetAttribute.WA_NativeWindow
+        )
         self.player=mpv.MPV(
             wid=str(int(widget.winId())),
             vo="gpu-next",
