@@ -29,11 +29,41 @@
       <widget class="QWidget" name="qWidget_listsArea">
        <layout class="QVBoxLayout" name="qVBoxLayout_listsArea">
         <item>
-         <widget class="QLabel" name="qLabel_listsTitle">
-          <property name="text">
-           <string>歌单列表</string>
-          </property>
-         </widget>
+         <layout class="QHBoxLayout" name="horizontalLayout_5">
+          <item>
+           <widget class="QLabel" name="qLabel_listsTitle">
+            <property name="text">
+             <string>歌单列表</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <spacer name="horizontalSpacer_4">
+            <property name="orientation">
+             <enum>Qt::Horizontal</enum>
+            </property>
+            <property name="sizeHint" stdset="0">
+             <size>
+              <width>40</width>
+              <height>20</height>
+             </size>
+            </property>
+           </spacer>
+          </item>
+          <item>
+           <widget class="QPushButton" name="qPushButton_empty">
+            <property name="text">
+             <string/>
+            </property>
+            <property name="checkable">
+             <bool>false</bool>
+            </property>
+            <property name="flat">
+             <bool>true</bool>
+            </property>
+           </widget>
+          </item>
+         </layout>
         </item>
         <item>
          <widget class="QListWidget" name="qListWidget_listsList"/>
@@ -98,7 +128,7 @@
              <rect>
               <x>0</x>
               <y>0</y>
-              <width>68</width>
+              <width>121</width>
               <height>456</height>
              </rect>
             </property>
@@ -111,11 +141,35 @@
       <widget class="QWidget" name="qWidget_songsArea">
        <layout class="QVBoxLayout" name="qVBoxLayout_songsArea">
         <item>
-         <widget class="QLabel" name="qLabel_songsTitle">
-          <property name="text">
-           <string>歌曲列表</string>
-          </property>
-         </widget>
+         <layout class="QHBoxLayout" name="horizontalLayout_4">
+          <item>
+           <widget class="QLabel" name="qLabel_songsTitle">
+            <property name="text">
+             <string>歌曲列表</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <spacer name="horizontalSpacer_3">
+            <property name="orientation">
+             <enum>Qt::Horizontal</enum>
+            </property>
+            <property name="sizeHint" stdset="0">
+             <size>
+              <width>40</width>
+              <height>20</height>
+             </size>
+            </property>
+           </spacer>
+          </item>
+          <item>
+           <widget class="QPushButton" name="qPushButton_shareList">
+            <property name="text">
+             <string>分享歌单</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
         </item>
         <item>
          <widget class="QListWidget" name="qListWidget_songsList"/>

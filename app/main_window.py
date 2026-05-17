@@ -4,16 +4,19 @@ from ui.ui_main_window import Ui_mainWindow
 from managers.library_manager import LibraryManager
 from managers.play_manager import PlayManager,PlayMode
 from managers.player_manager import PlayerState
+from managers.share_manager import save_share_html
 from PyQt6.QtCore import QTimer, Qt
 from PyQt6.QtCore import QPropertyAnimation, QEasingCurve
 from PyQt6.QtGui import QFont
 from repositories.media_repository import download_result_to_media_item
 from managers.session_manager import SessionManager,Session
-from utils import load_theme
+from utils import load_theme,safe_file_name
 import os
 from utils import time_s_to_m_s
 import qtawesome as qta
 import qdarktheme
+from PyQt6.QtCore import QUrl
+from PyQt6.QtGui import QDesktopServices
 
 class MainWindow(QMainWindow):
 
@@ -64,6 +67,7 @@ class MainWindow(QMainWindow):
         self.ui.qScrollArea_lyrics.setWidget(self.lyricContainer)
         self.ui.qScrollArea_lyrics.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
         self.ui.qScrollArea_lyrics.setVerticalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
+        self.ui.qPushButton_empty.setDisabled(True)
 
     def bind_signals(self):
         self.ui.qAction_quit.triggered.connect(self.close)
@@ -92,6 +96,7 @@ class MainWindow(QMainWindow):
         self.ui.qPushButton_mode.clicked.connect(self.change_play_mode)
         self.ui.qPushButton_theme.clicked.connect(self.change_theme)
         self.timer_5s.timeout.connect(self.update_session)
+        self.ui.qPushButton_shareList.clicked.connect(self.share_playlist)
 
     def change_theme(self):
         if self.theme=="dark":
@@ -378,6 +383,19 @@ class MainWindow(QMainWindow):
         elif self.playManager.play_mode==PlayMode.RANDOM:
             self.set_icon(self.ui.qPushButton_mode,"fa5s.random")
         print(self.playManager.play_mode)
+    
+    def share_playlist(self):
+        if self.current_playlist_id==None:
+            return
+        playlist=self.libraryManager.get_playlist_by_id(self.current_playlist_id)
+        filename=safe_file_name(playlist.title)+".html"
+        file_path=QFileDialog.getSaveFileName(self, "保存歌单", filename, filter="HTML Files (*.html)")[0]
+        if file_path:
+            save_share_html(playlist, playlist.title, file_path)
+            open = QMessageBox.question(self, "成功", "歌单已保存，是否打开？", 
+                                        QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No, QMessageBox.StandardButton.Yes)
+            if open == QMessageBox.StandardButton.Yes:
+                QDesktopServices.openUrl(QUrl.fromLocalFile(file_path))
     
     def closeEvent(self, event):
         exit()
