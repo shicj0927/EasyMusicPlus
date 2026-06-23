@@ -23,7 +23,7 @@ class PlayerManager(QObject):
         )
         self.player=mpv.MPV(
             wid=str(int(widget.winId())),
-            vo="gpu-next",
+            vo="gpu",
             hwdec="auto-safe"
         )
         self.timer = QTimer()

@@ -1,6 +1,9 @@
-from PyQt6.QtWidgets import QMainWindow, QFileDialog, QInputDialog, QMessageBox
+from PyQt6.QtWidgets import QMainWindow, QFileDialog, QInputDialog, QMessageBox, QListWidget
 from PyQt6.QtWidgets import QApplication, QListWidgetItem, QLabel, QWidget, QVBoxLayout
 from ui.ui_main_window import Ui_mainWindow
+from app.download_dialog import DownloadDialog
+from app.about_dialog import AboutDialog
+from app.add_music_dialog import AddMusicDialog
 from managers.library_manager import LibraryManager
 from managers.play_manager import PlayManager,PlayMode
 from managers.player_manager import PlayerState
@@ -26,7 +29,7 @@ class MainWindow(QMainWindow):
         self.ui.setupUi(self)
         self.sessionManager=SessionManager()
         self.libraryManager=LibraryManager()
-        self.playManager=PlayManager(self.ui.qWidget_vedio)
+        self.playManager=PlayManager(self.ui.qWidget_vedio,self.libraryManager)
         self.timer_5s=QTimer()
         self.timer_5s.setInterval(5000)
         self.timer_5s.start()
@@ -37,6 +40,7 @@ class MainWindow(QMainWindow):
         self.init_ui()
         self.bind_signals()
         self.theme="dark"
+        self.auto_clear_current_id_lock=False
         self.app=QApplication.instance()
         self.app.setStyleSheet(qdarktheme.load_stylesheet("dark"))
         self.sessionManager.load_session()
@@ -68,6 +72,8 @@ class MainWindow(QMainWindow):
         self.ui.qScrollArea_lyrics.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
         self.ui.qScrollArea_lyrics.setVerticalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
         self.ui.qPushButton_empty.setDisabled(True)
+        self.ui.qListWidget_listsList.setDragDropMode(QListWidget.DragDropMode.InternalMove)
+        self.ui.qListWidget_songsList.setDragDropMode(QListWidget.DragDropMode.InternalMove)
 
     def bind_signals(self):
         self.ui.qAction_quit.triggered.connect(self.close)
@@ -97,6 +103,8 @@ class MainWindow(QMainWindow):
         self.ui.qPushButton_theme.clicked.connect(self.change_theme)
         self.timer_5s.timeout.connect(self.update_session)
         self.ui.qPushButton_shareList.clicked.connect(self.share_playlist)
+        self.ui.qListWidget_listsList.model().rowsMoved.connect(self.on_playlists_reordered)
+        self.ui.qListWidget_songsList.model().rowsMoved.connect(self.on_songs_reordered)
 
     def change_theme(self):
         if self.theme=="dark":
@@ -106,32 +114,44 @@ class MainWindow(QMainWindow):
         self.app.setStyleSheet(qdarktheme.load_stylesheet(self.theme))
         self.update_session()
     
+    def sellect_playlist_by_id(self, playlist_id):
+        playlists=self.libraryManager.get_playlists()
+        for index, pl in enumerate(playlists):
+            if pl.id==playlist_id:
+                self.ui.qListWidget_listsList.setCurrentRow(index)
+                break
+
     def apply_session(self):
         session=self.sessionManager.get_session()
         print(session)
         self.theme=session.theme
         self.app.setStyleSheet(qdarktheme.load_stylesheet(self.theme))
         self.ui.qSlider_soundBar.setValue(session.vol)
+        self.current_playlist_id=session.current_playlist_id
         if session.lib!="" and session.lib!=None:
+            # self.auto_clear_current_id_lock=True
             self.libraryManager.load_library(session.lib)
             self.load_playlists_to_ui()
+            self.sellect_playlist_by_id(self.current_playlist_id)
+            self.load_playlist_to_ui()
+            print("session applied, current playlist id:",self.current_playlist_id)
+            # self.auto_clear_current_id_lock=False
     
     def update_session(self):
         session=Session()
         session.theme=self.theme
         session.vol=self.ui.qSlider_soundBar.value()
+        session.current_playlist_id=self.current_playlist_id
         if self.libraryManager.is_loaded:
             session.lib=os.getcwd()
         print("update session:",session)
         self.sessionManager.set_session(session)
     
     def open_download_dialog(self):
-        from app.download_dialog import DownloadDialog
         dialog = DownloadDialog(self)
         dialog.exec()
     
     def open_about_dialog(self):
-        from app.about_dialog import AboutDialog
         dialog = AboutDialog()
         dialog.exec()
     
@@ -157,25 +177,37 @@ class MainWindow(QMainWindow):
             self.libraryManager.load_library(library_path)
         self.load_playlists_to_ui()
         self.update_session()
-    
+
     def load_playlists_to_ui(self):
         playlists=self.libraryManager.get_playlists()
         self.ui.qListWidget_listsList.clear()
         for playlist in playlists:
-            self.ui.qListWidget_listsList.addItem(playlist.title)
+            item=QListWidgetItem(playlist.title)
+            item.setData(Qt.ItemDataRole.UserRole, playlist.id)
+            self.ui.qListWidget_listsList.addItem(item)
     
     def load_playlist_to_ui(self):
+        # breakpoint()
+        print("load playlist to ui, current playlist id:",self.current_playlist_id)
         if self.current_playlist_id==None:
             self.ui.qListWidget_songsList.clear()
             return
         playlists=self.libraryManager.get_playlists()
+        flag=False
         for pl in playlists:
             if pl.id==self.current_playlist_id:
+                flag=True
                 self.ui.qListWidget_songsList.clear()
-                for m in pl.media_items:
-                    # print(pl.media_items)
-                    self.ui.qListWidget_songsList.addItem(m.title+" - "+",".join(m.artists))
+                for m in pl.media_ids:
+                    media_item=self.libraryManager.get_media_by_id(m)
+                    item=QListWidgetItem(media_item.title+" - "+",".join(media_item.artists))
+                    item.setData(Qt.ItemDataRole.UserRole, media_item.id)
+                    self.ui.qListWidget_songsList.addItem(item)
+                print(f"playlist {pl.title} ({pl.id}) loaded to ui")
                 break
+        if flag==False:
+            self.ui.qListWidget_songsList.clear()
+            self.current_playlist_id=None
     
     def new_playlist(self):
         if not self.libraryManager.is_loaded():
@@ -190,6 +222,8 @@ class MainWindow(QMainWindow):
         if current_row>=0:
             playlists=self.libraryManager.get_playlists()
             playlist_id=playlists[current_row].id
+            if playlist_id=="-----":
+                return
             reply = QMessageBox.question(self, "确认删除", f"确定要删除歌单 '{playlists[current_row].title}' 吗？其中所有歌曲将被删除！", 
                                          QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No, QMessageBox.StandardButton.No)
             if reply == QMessageBox.StandardButton.Yes:
@@ -200,13 +234,22 @@ class MainWindow(QMainWindow):
         current_row=self.ui.qListWidget_songsList.currentRow()
         if current_row>=0:
             media=self.libraryManager.get_media_by_index(self.current_playlist_id,current_row)
-            reply=QMessageBox.question(self, "确认删除", f"确认删除 '{media.title}' 吗？",
+            info=f"确认从歌单移除 '{media.title}' 吗？"
+            if self.current_playlist_id=="-----":
+                influence=self.libraryManager.check_remove_influence(media.id)
+                if influence:
+                    info=f"确认删除 '{media.title}' 吗？\n\n注意：该歌曲存在于以下歌单中，将同时被删除：\n{"\n".join(influence)}"
+                else:
+                    info=f"确认删除 '{media.title}' 吗？\n\n注意：将删除该歌曲的数据文件！"
+            reply=QMessageBox.question(self, "确认删除", info,
                                        QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No, QMessageBox.StandardButton.No)
             if reply==QMessageBox.StandardButton.Yes:
                 self.libraryManager.remove_media_from_playlist(self.current_playlist_id,media.id)
                 self.load_playlist_to_ui()
     
     def on_playlist_selection_changed(self, current_row):
+        if self.auto_clear_current_id_lock:
+            return
         if current_row<0:
             self.current_playlist_id=None
             self.current_media_id=None
@@ -224,9 +267,23 @@ class MainWindow(QMainWindow):
         if not self.libraryManager.is_loaded():
             raise FileNotFoundError("library not loaded")
         from app.download_dialog import DownloadDialog
-        downloadDialog = DownloadDialog(self,config={"downloadPath": self.libraryManager.repository.library.master_folder})
-        downloadDialog.downloadCompletedSignal.connect(self.on_song_download_completed)
-        downloadDialog.exec()
+        if self.current_playlist_id=="-----":
+            download_dialog = DownloadDialog(self,config={"downloadPath": self.libraryManager.repository.library.master_folder})
+            download_dialog.downloadCompletedSignal.connect(self.on_song_download_completed)
+            download_dialog.exec()
+        else:
+            add_music_dialog = AddMusicDialog(
+                parent=self,
+                libraryManager=self.libraryManager,
+                songlist_id=self.current_playlist_id,
+                dlconfig={"downloadPath": self.libraryManager.repository.library.master_folder}
+            )
+            add_music_dialog.downloadCompletedSignal.connect(self.on_song_download_completed)
+            add_music_dialog.addedFromDataSignal.connect(lambda media_id: self.on_song_added_from_data(media_id))
+            add_music_dialog.exec()
+        
+    def on_song_added_from_data(self, media_id):
+        self.load_playlist_to_ui()
 
     def on_song_download_completed(self, download_result):
         media_item=download_result_to_media_item(download_result, self.libraryManager.gen_new_media_id())
@@ -348,13 +405,12 @@ class MainWindow(QMainWindow):
         self.lyricAnimation.start()
     
     def on_song_double_clicked(self):
-        media=self.libraryManager.get_media_by_id(self.current_playlist_id,self.current_media_id)
+        media=self.libraryManager.get_media_by_id(self.current_media_id)
         if self.playManager.check_type(media)=="video":
             self.ui.qStackedWidget_playArea.setCurrentWidget(self.ui.qWidget_vedio)
         else:
             self.ui.qStackedWidget_playArea.setCurrentWidget(self.ui.qWidget_song)
-        play_list=self.libraryManager.get_playlist_by_id(self.current_playlist_id)
-        self.playManager.play(media,play_list)
+        self.playManager.play(media,self.current_playlist_id)
     
     def on_next(self):
         media=self.playManager.play_next()
@@ -391,11 +447,28 @@ class MainWindow(QMainWindow):
         filename=safe_file_name(playlist.title)+".html"
         file_path=QFileDialog.getSaveFileName(self, "保存歌单", filename, filter="HTML Files (*.html)")[0]
         if file_path:
-            save_share_html(playlist, playlist.title, file_path)
+            save_share_html(self.libraryManager, self.current_playlist_id, playlist.title, file_path)
             open = QMessageBox.question(self, "成功", "歌单已保存，是否打开？", 
                                         QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No, QMessageBox.StandardButton.Yes)
             if open == QMessageBox.StandardButton.Yes:
                 QDesktopServices.openUrl(QUrl.fromLocalFile(file_path))
     
+    def on_playlists_reordered(self, parent, start, end, destination, row):
+        new_order=[]
+        for i in range(self.ui.qListWidget_listsList.count()):
+            playlist_id=self.ui.qListWidget_listsList.item(i).data(Qt.ItemDataRole.UserRole)
+            new_order.append(playlist_id)
+        self.libraryManager.change_playlists_order(new_order)
+
+    def on_songs_reordered(self, parent, start, end, destination, row):
+        if self.current_playlist_id==None:
+            return
+        new_order=[]
+        for i in range(self.ui.qListWidget_songsList.count()):
+            media_id=self.ui.qListWidget_songsList.item(i).data(Qt.ItemDataRole.UserRole)
+            new_order.append(media_id)
+        self.libraryManager.change_medias_order(self.current_playlist_id, new_order)
+
     def closeEvent(self, event):
+        self.update_session()
         exit()

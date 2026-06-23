@@ -7,3 +7,5 @@ nohup.*
 test/
 .VSCodeCounter/
 session.json
+build/
+old_ver_usable/

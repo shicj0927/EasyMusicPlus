@@ -21,6 +21,9 @@ class DownloadWorker(QObject):
     
     @pyqtSlot(object, str, str, str, bool)
     def download(self, songData, url, mediaId, path, randomIdFlag):
+        import yt_dlp
+        print("yt_dlp version:", yt_dlp.version.__version__)
+        print("yt_dlp path:", yt_dlp.__file__)
         try:
             bilibiliHtmlCache=""
             neteaseHtmlCache={}
@@ -190,8 +193,12 @@ class DownloadWorker(QObject):
                     'format': 'bestvideo[vcodec*=avc1]+bestaudio/best',
                     'outtmpl': os.path.join(path, safe_file_name(f"{songData['title']} - {', '.join(songData['artists'])}.%(ext)s")),
                     'noplaylist': True,
-                    'quiet': True,
-                    'no_warnings': True,
+                    'http_headers': {
+                        'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 Chrome/120 Safari/537.36',
+                        'Referer': 'https://www.bilibili.com/',
+                    },
+                    # 'quiet': True,
+                    # 'no_warnings': True,
                     'progress_hooks': [hook]
                 }
                 try:

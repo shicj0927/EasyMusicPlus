@@ -35,7 +35,7 @@ class Lyric:
     lines: list[LyricLine]=field(default_factory=list)
 
 @dataclass
-class MediaItem:
+class MediaItem_V10:
     id: str=""
     title: str=""
     artists: list[str]=field(default_factory=list)

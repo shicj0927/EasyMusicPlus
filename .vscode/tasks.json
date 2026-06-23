@@ -14,12 +14,18 @@
         "main.py"
       ],
       "dependsOn": [
-        "Build UI"
+        "Build UI",
+        "make project view"
       ],
       "group": {
         "kind": "build",
         "isDefault": true
       }
+    },
+    {
+      "label": "make project view",
+      "type": "shell",
+      "command": "python project_view.py > project_view.txt"
     }
   ]
 }

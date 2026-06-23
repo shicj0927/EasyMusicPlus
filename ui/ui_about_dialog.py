@@ -12,7 +12,7 @@ from PyQt6 import QtCore, QtGui, QtWidgets
 class Ui_qDialog_aboutDialog(object):
     def setupUi(self, qDialog_aboutDialog):
         qDialog_aboutDialog.setObjectName("qDialog_aboutDialog")
-        qDialog_aboutDialog.resize(701, 607)
+        qDialog_aboutDialog.resize(519, 528)
         self.verticalLayout = QtWidgets.QVBoxLayout(qDialog_aboutDialog)
         self.verticalLayout.setObjectName("verticalLayout")
         self.qTextBrowser_about = QtWidgets.QTextBrowser(parent=qDialog_aboutDialog)
@@ -36,11 +36,10 @@ class Ui_qDialog_aboutDialog(object):
 "li.checked::marker { content: \"\\2612\"; }\n"
 "</style></head><body style=\" font-family:\'Sans Serif\'; font-size:9pt; font-weight:400; font-style:normal;\">\n"
 "<p align=\"center\" style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><span style=\" font-size:18pt; font-weight:600;\">Easy Music Plus</span></p>\n"
-"<p align=\"center\" style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\">V1.0 By shicj</p>\n"
+"<p align=\"center\" style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\">By shicj</p>\n"
 "<hr />\n"
 "<p style=\" margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\">Easy Music Plus 是一个基于 Python 与 Qt 开发的跨平台音视频工具，用于音视频信息获取、播放与下载管理。</p>\n"
 "<p style=\" margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\">本软件仅供学习、研究与个人使用，请遵守相关法律法规以及各平台的用户协议与版权要求。用户应自行承担因使用本软件产生的相关责任。</p>\n"
-"<p style=\" margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\">本软件为开源/非商业项目，不隶属于任何音乐、视频或内容平台。</p>\n"
 "<p style=\" margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\">使用的主要开源组件：</p>\n"
 "<ul style=\"margin-top: 0px; margin-bottom: 0px; margin-left: 0px; margin-right: 0px; -qt-list-indent: 1;\">\n"
 "<li style=\" margin-top:12px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\">Qt / PyQt</li>\n"
@@ -53,6 +52,12 @@ class Ui_qDialog_aboutDialog(object):
 "<p style=\" margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\">FFmpeg 为独立开源项目，其版权与许可协议归 FFmpeg 项目所有。</p>\n"
 "<p style=\" margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\">yt-dlp 为独立开源项目，遵循其官方许可证发布。</p>\n"
 "<p style=\" margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\">本软件不提供、不存储任何音视频内容，所有内容均来自用户主动访问的第三方平台。</p>\n"
+"<p style=\" margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\">本软件部分功能调用第三方公开接口（包括 GD 音乐台(music.gdstudio.xyz)提供的相关服务）。相关服务的可用性、准确性及使用规则由其提供方负责，用户应遵守对应平台的服务条款与法律法规。</p>\n"
+"<p style=\" margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><a name=\"code-block-viewer\"></a><span style=\" font-family:\'monospace\';\">由</span><span style=\" font-family:\'monospace\';\">于第三方平台接口、网页结构、服务策略或版权要求可能发生变化，本软件部分功能可能随时失效，开发者不保证其持续可用性。</span></p>\n"
+"<p style=\" margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><span style=\" font-family:\'monospace\';\">本软件与任何音乐、视频或内容平台不存在隶属、授权或合作关系。用户应确保其获取、下载、播放及保存相关内容的行为符合所在地法律法规、版权政策及内容平台服务条款。开发者不对用户使用本软件产生的任何直接或间接损失承担责任。</span></p>\n"
+"<p style=\" margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><span style=\" font-family:\'monospace\';\">本软件源码采用 MIT License 发布。</span></p>\n"
 "<hr />\n"
-"<p align=\"center\" style=\" margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\">© 2026 shicj</p></body></html>"))
+"<p align=\"center\" style=\" margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\">© 2026 shicj</p>\n"
+"<p align=\"center\" style=\" margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\">软件版本：V1.0(Preview)</p>\n"
+"<p align=\"center\" style=\" margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\">数据库版本：V2.0</p></body></html>"))
         self.qPushButton_quit.setText(_translate("qDialog_aboutDialog", "关闭"))

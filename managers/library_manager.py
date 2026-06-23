@@ -1,6 +1,6 @@
 from repositories.library_repository import LibraryRepository
-from models.library import PlayList, Session
-from models.media import MediaItem
+from models.library import PlayList_V20
+from models.media import MediaItem_V10
 import random
 
 class LibraryManager:
@@ -19,41 +19,30 @@ class LibraryManager:
     def is_loaded(self):
         return self.loaded
     
-    def get_playlists(self) -> list[PlayList]:
+    def get_playlists(self) -> list[PlayList_V20]:
         if not self.loaded:
             raise RuntimeError("Library not loaded")
-        return self.repository.library.play_lists
+        return self.repository.get_playlists()
 
-    def get_playlist_by_index(self, index: int) -> PlayList:
+    def get_playlist_by_index(self, index: int) -> PlayList_V20:
         if not self.loaded:
             raise RuntimeError("Library not loaded")
-        return self.repository.library.play_lists[index]
+        return self.repository.get_playlists()[index]
 
-    def get_playlist_by_id(self, id: str) -> PlayList:
+    def get_playlist_by_id(self, id: str) -> PlayList_V20:
         if not self.loaded:
             raise RuntimeError("Library not loaded")
-        for l in self.repository.library.play_lists:
-            if l.id==id:
-                return l
-        raise RuntimeError("songlistId not found")
+        return self.repository.get_playlist(id)
 
-    def get_media_by_index(self, songlistId: str, index: int) -> MediaItem:
+    def get_media_by_index(self, songlistId: str, index: int) -> MediaItem_V10:
         if not self.loaded:
             raise RuntimeError("Library not loaded")
-        for pl in self.repository.library.play_lists:
-            if pl.id==songlistId:
-                return pl.media_items[index]
-        raise RuntimeError("songlistId not found")
+        return self.repository.get_media(self.repository.get_playlist(songlistId).media_ids[index])
 
-    def get_media_by_id(self, songlistId: str, mediaId: str) -> MediaItem:
+    def get_media_by_id(self, mediaId: str) -> MediaItem_V10:
         if not self.loaded:
             raise RuntimeError("Library not loaded")
-        for pl in self.repository.library.play_lists:
-            if pl.id==songlistId:
-                for m in pl.media_items:
-                    if(m.id==mediaId):
-                        return m
-        raise RuntimeError("mediaId not found")
+        return self.repository.get_media(mediaId)
     
     def gen_new_playlist_id(self):
         if not self.loaded:
@@ -68,9 +57,7 @@ class LibraryManager:
     def gen_new_media_id(self):
         if not self.loaded:
             raise RuntimeError("Library not loaded")
-        ids=[]
-        for pl in self.repository.library.play_lists:
-            ids.extend([mi.id for mi in pl.media_items])
+        ids=[m.id for m in self.repository.library.media_data.media_items]
         chars="0123456789abcdefghijklmnopqrstuvwxyz"
         while True:
             new_id = ''.join(random.choice(chars) for _ in range(5))
@@ -80,7 +67,7 @@ class LibraryManager:
     def new_playlist(self, title: str):
         if not self.loaded:
             raise RuntimeError("Library not loaded")
-        new_playlist = PlayList(id=self.gen_new_playlist_id(), title=title, media_items=[])
+        new_playlist = PlayList_V20(id=self.gen_new_playlist_id(), title=title, media_ids=[])
         self.repository.add_playlist(new_playlist)
     
     def remove_playlist(self, playlist_id: str):
@@ -103,3 +90,23 @@ class LibraryManager:
         if not self.loaded:
             raise RuntimeError("Library not loaded")
         self.repository.remove_from_playlist(playlist_id, media_id)
+    
+    def remove_mdeia_from_data(self, media_id: str):
+        if not self.loaded:
+            raise RuntimeError("Library not loaded")
+        self.repository.remove_from_data(media_id)
+
+    def check_remove_influence(self, media_id: str) -> list[str]:
+        if not self.loaded:
+            raise RuntimeError("Library not loaded")
+        return self.repository.check_remove_influence(media_id)
+    
+    def change_playlists_order(self, new_order: list[str]):
+        if not self.loaded:
+            raise RuntimeError("Library not loaded")
+        self.repository.change_playlists_order(new_order)
+    
+    def change_medias_order(self, playlist_id: str, new_order: list[str]):
+        if not self.loaded:
+            raise RuntimeError("Library not loaded")
+        self.repository.change_medias_order(playlist_id, new_order)

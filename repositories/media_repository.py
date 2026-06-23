@@ -1,11 +1,10 @@
 import json
-from models.library import MediaLibrary, PlayList, Session
-from models.media import MediaItem, AudioTrack, VideoTrack, LyricTrack
+from models.media import MediaItem_V10, AudioTrack, VideoTrack, LyricTrack
 from utils import get_rel_path
 import os
 
-def download_result_to_media_item(download_result: dict, id: str) -> MediaItem:
-    return MediaItem(
+def download_result_to_media_item(download_result: dict, id: str) -> MediaItem_V10:
+    return MediaItem_V10(
         id=id,
         source_id=download_result["id"],
         title=download_result["title"],

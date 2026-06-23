@@ -131,6 +131,7 @@ html="""
     <div class="container">
         <div class="header">
             <div class="title" id="title"></div>
+            <div class="number">共 <a id="number"></a> 首歌曲</div>
             <button class="copy-btn" id="copy">复制歌单</button>
         </div>
         <div class="list" id="list">
@@ -232,6 +233,7 @@ body{
         });
         document.getElementById("pagetitle").textContent = data.title;
         document.getElementById("title").textContent = data.title;
+        document.getElementById("number").textContent = data.list.length;
         const listContainer = document.getElementById("list");
         data.list.forEach(item => {
             const itemElement = document.createElement("div");
