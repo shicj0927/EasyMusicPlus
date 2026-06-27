@@ -84,7 +84,7 @@ class DownloadWorker(QObject):
                     songData["url"]="https://www.bilibili.com/video/"+songData["id"]
                     headers["Referer"]="https://www.bilibili.com/"
                     for i in range(5):
-                        resp=requests.get(songData["url"], headers=headers)
+                        resp=requests.get(songData["url"], headers=headers, timeout=5)
                         if resp.status_code==200:
                             break
                     if resp.status_code!=200:
@@ -100,7 +100,7 @@ class DownloadWorker(QObject):
                     songData["url"]="https://music.163.com/api/song/detail/?ids=["+songData["id"]+"]"
                     headers["Referer"]="https://music.163.com/"
                     for i in range(5):
-                        resp=requests.get(songData["url"], headers=headers)
+                        resp=requests.get(songData["url"], headers=headers, timeout=5)
                         if resp.status_code==200:
                             break
                     if resp.status_code!=200:
@@ -126,7 +126,7 @@ class DownloadWorker(QObject):
                 if bilibiliHtmlCache=="":
                     headers["Referer"]="https://www.bilibili.com/"
                     for i in range(5):
-                        resp=requests.get(songData["url"], headers=headers)
+                        resp=requests.get(songData["url"], headers=headers, timeout=5)
                         if resp.status_code==200:
                             break
                     if resp.status_code!=200:
@@ -138,7 +138,7 @@ class DownloadWorker(QObject):
                 if neteaseHtmlCache=={}:
                     headers["Referer"]="https://music.163.com/"
                     for i in range(5):
-                        resp=requests.get(songData["url"], headers=headers)
+                        resp=requests.get(songData["url"], headers=headers, timeout=5)
                         if resp.status_code==200:
                             break
                     if resp.status_code!=200:
@@ -169,7 +169,7 @@ class DownloadWorker(QObject):
             if not os.path.exists(path):
                 os.makedirs(path)
             try:
-                response = requests.get(songData["cover"], headers=headers)
+                response = requests.get(songData["cover"], headers=headers, timeout=5)
                 if response.status_code == 200:
                     coverPath = os.path.join(path, safe_file_name(f"{songData['title']} - {', '.join(songData['artists'])}.jpg"))
                     with open(coverPath, 'wb') as f:
@@ -213,7 +213,7 @@ class DownloadWorker(QObject):
                 # https://music-api.gdstudio.xyz/api.php?types=lyric&source=[MUSIC SOURCE]&id=[LYRIC ID]
                 lyricUrl = f"https://music-api.gdstudio.xyz/api.php?types=lyric&source=netease&id={songData['id']}"
                 for i in range(5):
-                    resp=requests.get(lyricUrl, headers=headers)
+                    resp=requests.get(lyricUrl, headers=headers, timeout=5)
                     if resp.status_code==200 and resp.json()!=None and resp.json()!=[]:
                         break
                 if resp.status_code==200 and resp.json()!=None and resp.json()!=[]:
@@ -232,7 +232,7 @@ class DownloadWorker(QObject):
                 # https://music-api.gdstudio.xyz/api.php?types=url&source=[MUSIC SOURCE]&id=[TRACK ID]&br=[128/192/320/740/999]
                 url = f"https://music-api.gdstudio.xyz/api.php?types=url&source=netease&id={songData['id']}&br=320"
                 for i in range(5):
-                    resp=requests.get(url, headers=headers)
+                    resp=requests.get(url, headers=headers, timeout=5)
                     if resp.status_code==200 and resp.json()!=None and resp.json()!=[]:
                         break
                 if resp.status_code!=200 or resp.json()==None or resp.json()==[]:
@@ -245,7 +245,7 @@ class DownloadWorker(QObject):
                 fileName=safe_file_name(f"{songData['title']} - {', '.join(songData['artists'])}.mp3")
                 filePath=os.path.join(path, fileName)
                 try:
-                    with requests.get(downloadUrl, headers=headers, stream=True) as r:
+                    with requests.get(downloadUrl, headers=headers, stream=True, timeout=10) as r:
                         r.raise_for_status()
                         total_length = int(r.headers.get('content-length', 0))
                         downloaded_length = 0

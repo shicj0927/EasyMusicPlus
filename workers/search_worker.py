@@ -10,13 +10,15 @@ class SearchWorker(QObject):
     
     @pyqtSlot(str, str, int, int)
     def search(self, keyword, source, page_length=20, page_num=1):
+        # print(requests.get("https://music-api.gdstudio.xyz/api.php?types=search&source=netease&name=t&count=60&pages=1"))
         try:
             print(f"search: {keyword} from {source}")
             url = f"https://music-api.gdstudio.xyz/api.php?types=search&source={source}&name={keyword}&count={page_length}&pages={page_num}"
             i=1
             while i<=8:
                 print(f"Attempt {i} to fetch data from {url}")
-                response = requests.get(url)
+                response = requests.get(url, timeout=5)
+                print(response)
                 if response.status_code == 200 and response.json()!=None and response.json()!=[]:
                     self.searchFinishedSignal.emit(response.json())
                     return
