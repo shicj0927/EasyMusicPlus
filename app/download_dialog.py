@@ -14,9 +14,10 @@ class DownloadDialog(QDialog):
     startDownloadSignal = pyqtSignal(object,str,str,str,bool)
     downloadCompletedSignal = pyqtSignal(object)
 
-    def __init__(self, parent=None, config=None):
+    def __init__(self, parent=None, config=None, autoStartId=None):
         super().__init__(parent)
         self.config=config
+        self.autoStartId=autoStartId
         self.ui = Ui_qDialog_downloadDialog()
         self.ui.setupUi(self)
         self.thread = QThread()
@@ -35,6 +36,8 @@ class DownloadDialog(QDialog):
         self.init_ui()
         self.bind_signals()
         self.nowSearchResult = None
+        if self.autoStartId!=None:
+            self.auto_start()
 
     def init_ui(self):
         self.ui.qProgressBar_download.setValue(0)
@@ -98,6 +101,11 @@ class DownloadDialog(QDialog):
             index = model.index(row, 2)
             self.ui.qTableView_searchResult.setIndexWidget(index, btn)
     
+    def auto_start(self):
+        self.ui.qTabWidget_mainTabs.setCurrentIndex(1)
+        self.ui.qLineEdit_mediaId.setText(self.autoStartId)
+        self.on_download_with_mediaId_clicked()
+
     def on_download_with_info_clicked(self, row):
         if 0 <= row < len(self.nowSearchResult):
             songInfo = self.nowSearchResult[row]
@@ -156,6 +164,11 @@ class DownloadDialog(QDialog):
         if self.config!=None:
             if result["status"]=="success":
                 self.downloadCompletedSignal.emit(result["result"])
+                self.thread.quit()
+                self.thread.wait()
+                self.accept()
+            elif self.autoStartId:
+                self.downloadCompletedSignal.emit({"error":"error"})
                 self.thread.quit()
                 self.thread.wait()
                 self.accept()

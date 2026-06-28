@@ -280,9 +280,13 @@ class MainWindow(QMainWindow):
             )
             add_music_dialog.downloadCompletedSignal.connect(self.on_song_download_completed)
             add_music_dialog.addedFromDataSignal.connect(lambda media_id: self.on_song_added_from_data(media_id))
+            add_music_dialog.loadedSonglistSignal.connect(self.on_song_added_from_list)
             add_music_dialog.exec()
         
     def on_song_added_from_data(self, media_id):
+        self.load_playlist_to_ui()
+    
+    def on_song_added_from_list(self):
         self.load_playlist_to_ui()
 
     def on_song_download_completed(self, download_result):

@@ -15,15 +15,18 @@ app/add_music_dialog.py
 │   ├── def bind_signals(self)
 │   ├── def add_from_data(self)
 │   ├── def open_downloader(self)
+│   ├── def open_get_songlist_dialog(self)
+│   ├── def on_get_completed(self)
 │   ├── def on_song_download_completed(self, download_result)
 
 app/download_dialog.py
 ├── class DownloadDialog(QDialog)
-│   ├── def __init__(self, parent, config)
+│   ├── def __init__(self, parent, config, autoStartId)
 │   ├── def init_ui(self)
 │   ├── def bind_signals(self)
 │   ├── def start_search(self)
 │   ├── def on_search_finished(self, result)
+│   ├── def auto_start(self)
 │   ├── def on_download_with_info_clicked(self, row)
 │   ├── def on_download_with_url_clicked(self)
 │   ├── def on_download_with_mediaId_clicked(self)
@@ -32,6 +35,24 @@ app/download_dialog.py
 │   ├── def on_parse_result(self, songData)
 │   ├── def on_download_log_update(self, log)
 │   ├── def on_download_finished(self, result)
+│   ├── def closeEvent(self, event)
+│   ├── def reject(self)
+│   ├── def stop_thread(self)
+
+app/get_netease_songlist_dialog.py
+├── class GetNeteaseSonglistDialog(QDialog)
+│   ├── def __init__(self, parent, libraryManager: LibraryManager, songlist_id: str, dlconfig: dict)
+│   ├── def init_ui(self)
+│   ├── def bind_signals(self)
+│   ├── def start_workers(self)
+│   ├── def on_get_finished(self, result)
+│   ├── def start_get(self)
+│   ├── def display_ids(self)
+│   ├── def start_download(self)
+│   ├── def download_next(self)
+│   ├── def on_song_download_completed(self, download_result)
+│   ├── def update_progress(self)
+│   ├── def on_all_finished(self)
 │   ├── def closeEvent(self, event)
 │   ├── def reject(self)
 │   ├── def stop_thread(self)
@@ -59,6 +80,7 @@ app/main_window.py
 │   ├── def on_song_selection_changed(self, current_row)
 │   ├── def on_add_song_clicked(self)
 │   ├── def on_song_added_from_data(self, media_id)
+│   ├── def on_song_added_from_list(self)
 │   ├── def on_song_download_completed(self, download_result)
 │   ├── def on_duration_changed(self, duration)
 │   ├── def clear_lyrics(self)
@@ -238,6 +260,11 @@ ui/ui_download_dialog.py
 │   ├── def setupUi(self, qDialog_downloadDialog)
 │   ├── def retranslateUi(self, qDialog_downloadDialog)
 
+ui/ui_get_netease_songlist_dialog.py
+├── class Ui_qDialog_get_netease_songlist(object)
+│   ├── def setupUi(self, qDialog_get_netease_songlist)
+│   ├── def retranslateUi(self, qDialog_get_netease_songlist)
+
 ui/ui_main_window.py
 ├── class Ui_mainWindow(object)
 │   ├── def setupUi(self, mainWindow)
@@ -256,6 +283,13 @@ workers/download_worker.py
 ├── class DownloadWorker(QObject)
 │   ├── def __init__(self)
 │   ├── def download(self, songData, url, mediaId, path, randomIdFlag)
+
+workers/get_netease_songlist_worker.py
+├── def get_current_playlist_by_ws(cdp_ws_url: str)
+├── def get_current_playlist_by_url(url: str)
+├── class getNeteaseSonglistWorker(QObject)
+│   ├── def __init__(self)
+│   ├── def get(self, url)
 
 workers/search_worker.py
 ├── class SearchWorker(QObject)
