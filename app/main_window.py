@@ -45,6 +45,7 @@ class MainWindow(QMainWindow):
         self.app.setStyleSheet(qdarktheme.load_stylesheet("dark"))
         self.sessionManager.load_session()
         self.apply_session()
+        self.add_music_dialog=None
         # self.libraryManager.load_library("./test/test")
         # self.load_playlists_to_ui()
     
@@ -272,21 +273,27 @@ class MainWindow(QMainWindow):
             download_dialog.downloadCompletedSignal.connect(self.on_song_download_completed)
             download_dialog.exec()
         else:
-            add_music_dialog = AddMusicDialog(
+            self.add_music_dialog = AddMusicDialog(
                 parent=self,
                 libraryManager=self.libraryManager,
                 songlist_id=self.current_playlist_id,
                 dlconfig={"downloadPath": self.libraryManager.repository.library.master_folder}
             )
-            add_music_dialog.downloadCompletedSignal.connect(self.on_song_download_completed)
-            add_music_dialog.addedFromDataSignal.connect(lambda media_id: self.on_song_added_from_data(media_id))
-            add_music_dialog.loadedSonglistSignal.connect(self.on_song_added_from_list)
-            add_music_dialog.exec()
+            self.add_music_dialog.downloadCompletedSignal.connect(self.on_song_download_completed)
+            self.add_music_dialog.addedFromDataSignal.connect(lambda media_id: self.on_song_added_from_data(media_id))
+            self.add_music_dialog.loadedSonglistSignal.connect(self.on_song_added_from_list)
+            self.add_music_dialog.exec()
         
     def on_song_added_from_data(self, media_id):
+        if self.add_music_dialog:
+            self.add_music_dialog.accept()
+            self.on_song_added_from_list=None
         self.load_playlist_to_ui()
     
     def on_song_added_from_list(self):
+        if self.add_music_dialog:
+            self.add_music_dialog.accept()
+            self.on_song_added_from_list=None
         self.load_playlist_to_ui()
 
     def on_song_download_completed(self, download_result):

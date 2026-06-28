@@ -7,7 +7,7 @@ from PyQt6.QtCore import pyqtSignal, pyqtSlot
 from PyQt6.QtCore import QStringListModel
 from PyQt6.QtGui import QStandardItemModel, QStandardItem
 from PyQt6.QtWidgets import QStyledItemDelegate, QPushButton, QApplication, QStyle
-from PyQt6.QtCore import Qt
+from PyQt6.QtCore import Qt, QTimer
 
 class DownloadDialog(QDialog):
     startSearchSignal = pyqtSignal(str,str,int,int)
@@ -20,24 +20,31 @@ class DownloadDialog(QDialog):
         self.autoStartId=autoStartId
         self.ui = Ui_qDialog_downloadDialog()
         self.ui.setupUi(self)
-        self.thread = QThread()
+        self.searchThread = QThread()
         self.searchWorker = SearchWorker()
-        self.searchWorker.moveToThread(self.thread)
+        self.searchWorker.moveToThread(self.searchThread)
+        self.downloadThread = QThread()
+        self.downloadWorker = DownloadWorker()
+        self.downloadWorker.moveToThread(self.downloadThread)
         self.startSearchSignal.connect(self.searchWorker.search)
         self.searchWorker.searchFinishedSignal.connect(self.on_search_finished)
-        self.downloadWorker = DownloadWorker()
-        self.downloadWorker.moveToThread(self.thread)
         self.startDownloadSignal.connect(self.downloadWorker.download)
         self.downloadWorker.downloadLogSingnal.connect(self.on_download_log_update)
         self.downloadWorker.parseResultSignal.connect(self.on_parse_result)
         self.downloadWorker.procressUpdateSignal.connect(self.ui.qProgressBar_download.setValue)
         self.downloadWorker.downloadFinishedSignal.connect(self.on_download_finished)
-        self.thread.start()
+        self.searchThread.finished.connect(lambda: print("Search thread finished"))
+        self.downloadThread.finished.connect(lambda: print("Download thread finished"))
+        self.searchThread.start()
+        self.downloadThread.start()
         self.init_ui()
         self.bind_signals()
         self.nowSearchResult = None
-        if self.autoStartId!=None:
-            self.auto_start()
+    
+    def showEvent(self, event):
+        super().showEvent(event)
+        if self.autoStartId is not None:
+            QTimer.singleShot(0, self.auto_start)
 
     def init_ui(self):
         self.ui.qProgressBar_download.setValue(0)
@@ -162,15 +169,16 @@ class DownloadDialog(QDialog):
     def on_download_finished(self, result):
         self.ui.qTextBrowser_downloadLog.append(f"下载结束：{result}")
         if self.config!=None:
-            if result["status"]=="success":
+            if self.autoStartId:
+                if result["status"]=="success":
+                    self.downloadCompletedSignal.emit(result["result"])
+                else:
+                    self.downloadCompletedSignal.emit({"error":"error"})
+                # self.stop_thread()
+                # self.accept()
+            elif result["status"]=="success":
                 self.downloadCompletedSignal.emit(result["result"])
-                self.thread.quit()
-                self.thread.wait()
-                self.accept()
-            elif self.autoStartId:
-                self.downloadCompletedSignal.emit({"error":"error"})
-                self.thread.quit()
-                self.thread.wait()
+                self.stop_thread()
                 self.accept()
     
     def closeEvent(self, event):
@@ -182,7 +190,12 @@ class DownloadDialog(QDialog):
         super().reject()
 
     def stop_thread(self):
-        print("Stopping thread safely")
-        if hasattr(self, "thread"):
-            self.thread.quit()
-            self.thread.wait()
+        print("Stopping safely")
+
+        if hasattr(self, "searchThread"):
+            self.searchThread.quit()
+            self.searchThread.wait(2000)
+
+        if hasattr(self, "downloadThread"):
+            self.downloadThread.quit()
+            self.downloadThread.wait(3000)

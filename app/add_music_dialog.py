@@ -17,6 +17,7 @@ class AddMusicDialog(QDialog):
         self.libraryManager = libraryManager
         self.songlist_id = songlist_id
         self.dlconfig = dlconfig
+        self.getDialog=None
         self.ui = Ui_qDialog_addMusicDialog()
         self.ui.setupUi(self)
         self.init_ui()
@@ -51,13 +52,18 @@ class AddMusicDialog(QDialog):
             downloadDialog.exec()
     
     def open_get_songlist_dialog(self):
-        getDialog=GetNeteaseSonglistDialog(self,self.libraryManager,self.songlist_id,self.dlconfig)
-        getDialog.allCompletedSignal.connect(self.on_get_completed)
-        getDialog.exec()
+        self.getDialog=GetNeteaseSonglistDialog(
+            self.libraryManager,
+            self.songlist_id,self.dlconfig
+        )
+        self.getDialog.allCompletedSignal.connect(self.on_get_completed)
+        self.getDialog.exec()
     
     def on_get_completed(self):
+        self.getDialog.accept()
         self.loadedSonglistSignal.emit()
+        # self.close()
     
     def on_song_download_completed(self, download_result):
         self.downloadCompletedSignal.emit(download_result)
-        self.close()
+        # self.close()

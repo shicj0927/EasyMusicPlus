@@ -1,6 +1,6 @@
 from PyQt6.QtWidgets import QDialog
 from ui.ui_get_netease_songlist_dialog import Ui_qDialog_get_netease_songlist
-from PyQt6.QtCore import QThread, QTimer
+from PyQt6.QtCore import QThread
 from PyQt6.QtCore import pyqtSignal, pyqtSlot
 from workers.get_netease_songlist_worker import getNeteaseSonglistWorker
 from PyQt6.QtWidgets import QMessageBox
@@ -15,14 +15,13 @@ class GetNeteaseSonglistDialog(QDialog):
     downloadCompletedSignal = pyqtSignal(object)
     allCompletedSignal = pyqtSignal()
 
-    def __init__(self, libraryManager: LibraryManager, songlist_id:str, dlconfig: dict):
+    def __init__(self, parent, libraryManager: LibraryManager, songlist_id:str, dlconfig: dict):
         super().__init__()
         self.ui = Ui_qDialog_get_netease_songlist()
         self.ui.setupUi(self)
         self.start_workers()
         self.init_ui()
         self.bind_signals()
-        self.download_dialog=None
         self.songlist=[]
         self.next_index=0
         self.error_indexs=[]
@@ -35,7 +34,8 @@ class GetNeteaseSonglistDialog(QDialog):
 
     def bind_signals(self):
         self.ui.qPushButton_quit.clicked.connect(self.close)
-        self.ui.qPushButton_get_ids.clicked.connect(self.start_get)
+        self.ui.qPushButton_request.clicked.connect(self.start_get)
+        self.ui.qPushButton_get_ids.clicked.connect(self.display_ids)
         self.ui.qPushButton_start.clicked.connect(self.start_download)
     
     def start_workers(self):
@@ -48,35 +48,36 @@ class GetNeteaseSonglistDialog(QDialog):
         self.result=None
 
     def on_get_finished(self,result):
-        self.ui.qPlainTextEdit_log.clear()
+        self.ui.qPlainTextEdit_get_log.clear()
+        self.result=result
         if result==None:
-            self.result=None
-            self.ui.qPlainTextEdit_log.setPlainText("错误！请检查连接并重试！")
+            self.ui.qPlainTextEdit_get_log.setPlainText("错误！请检查连接并重试！")
         else:
-            result=result.get("playlist")
-            self.result=result
             print(result)
             txt=""
             txt+="歌单名："+result.get("name")+"\n"
             txt+="歌曲数："+str(len(result.get("trackIds")))+"\n"
             txt+="歌单id: "+str(result.get("id"))+"\n"
             txt+="创建者: "+result.get("creator").get("nickname")+"\n\n"
-            self.ui.qPlainTextEdit_log.setPlainText(txt)
-            ids=""
-            try:
-                for i in self.result.get("trackIds"):
-                    ids+=str(i.get("id"))+"\n"
-            except:
-                self.ui.qPlainTextEdit_log.appendPlainText("加载失败！")
-                return
-            if ids!="":
-                self.ui.qPlainTextEdit_song_ids.clear()
-                self.ui.qPlainTextEdit_song_ids.setPlainText(ids)
+            txt+="确认无误后点击“加载”按钮将歌曲id加载到左侧编辑框"
+            self.ui.qPlainTextEdit_get_log.setPlainText(txt)
     
     def start_get(self):
-        id=self.ui.qLineEdit_id.text()
-        self.startGetSignal.emit(id)
+        url=self.ui.qLineEdit_url.text()
+        self.startGetSignal.emit(url)
     
+    def display_ids(self):
+        ids=""
+        try:
+            for i in self.result.get("trackIds"):
+                ids+=str(i.get("id"))+"\n"
+        except:
+            self.ui.qPlainTextEdit_log.setPlainText("加载失败！")
+            return
+        if ids!="":
+            self.ui.qPlainTextEdit_song_ids.clear()
+            self.ui.qPlainTextEdit_song_ids.setPlainText(ids)
+
     def start_download(self):
         self.songlist=[]
         ids=self.ui.qPlainTextEdit_song_ids.toPlainText()
@@ -116,13 +117,13 @@ class GetNeteaseSonglistDialog(QDialog):
             self.download_next()
         else:
             self.ui.qPlainTextEdit_log.appendPlainText(f"{self.next_index+1}: 开始下载")
-            self.download_dialog = DownloadDialog(
+            downloadDialog = DownloadDialog(
                 parent=self,
                 config=self.dlconfig,
                 autoStartId=self.songlist[self.next_index]
             )
-            self.download_dialog.downloadCompletedSignal.connect(self.on_song_download_completed)
-            self.download_dialog.exec()
+            downloadDialog.downloadCompletedSignal.connect(self.on_song_download_completed)
+            downloadDialog.exec()
 
     def on_song_download_completed(self,download_result):
         if "error" in download_result:
@@ -134,14 +135,6 @@ class GetNeteaseSonglistDialog(QDialog):
             self.libraryManager.add_media_to_playlist(self.songlist_id, media_item)
         self.update_progress()
         self.next_index+=1
-        QTimer.singleShot(0, self._close_dialog)
-    
-    def _close_dialog(self):
-        self.download_dialog.stop_thread()
-        self.download_dialog.accept()
-        QTimer.singleShot(0, self._after_dialog_closed)
-    
-    def _after_dialog_closed(self):
         self.download_next()
     
     def update_progress(self):
@@ -151,7 +144,7 @@ class GetNeteaseSonglistDialog(QDialog):
     def on_all_finished(self):
         self.ui.qProgressBar_progress.setValue(100)
         self.allCompletedSignal.emit()
-        # QTimer.singleShot(0, self.accept)
+        self.accept()
 
     def closeEvent(self, event):
         self.stop_thread()

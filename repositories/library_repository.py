@@ -100,8 +100,9 @@ class LibraryRepository:
             return
         for pl in self.library.play_lists:
             if pl.id == playlist_id:
-                pl.media_ids.append(media.id)
-                self.save_library()
+                if media.id not in pl.media_ids:
+                    pl.media_ids.append(media.id)
+                    self.save_library()
                 return
         raise ValueError(f"Playlist {playlist_id} not found")
     

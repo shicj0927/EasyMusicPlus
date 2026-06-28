@@ -1,4 +1,22 @@
 
+app/[oldapi]get_netease_songlist_dialog.py
+├── class GetNeteaseSonglistDialog(QDialog)
+│   ├── def __init__(self, parent, libraryManager: LibraryManager, songlist_id: str, dlconfig: dict)
+│   ├── def init_ui(self)
+│   ├── def bind_signals(self)
+│   ├── def start_workers(self)
+│   ├── def on_get_finished(self, result)
+│   ├── def start_get(self)
+│   ├── def display_ids(self)
+│   ├── def start_download(self)
+│   ├── def download_next(self)
+│   ├── def on_song_download_completed(self, download_result)
+│   ├── def update_progress(self)
+│   ├── def on_all_finished(self)
+│   ├── def closeEvent(self, event)
+│   ├── def reject(self)
+│   ├── def stop_thread(self)
+
 app/__init__.py
 └── (no top-level classes/functions)
 
@@ -22,6 +40,7 @@ app/add_music_dialog.py
 app/download_dialog.py
 ├── class DownloadDialog(QDialog)
 │   ├── def __init__(self, parent, config, autoStartId)
+│   ├── def showEvent(self, event)
 │   ├── def init_ui(self)
 │   ├── def bind_signals(self)
 │   ├── def start_search(self)
@@ -41,16 +60,17 @@ app/download_dialog.py
 
 app/get_netease_songlist_dialog.py
 ├── class GetNeteaseSonglistDialog(QDialog)
-│   ├── def __init__(self, parent, libraryManager: LibraryManager, songlist_id: str, dlconfig: dict)
+│   ├── def __init__(self, libraryManager: LibraryManager, songlist_id: str, dlconfig: dict)
 │   ├── def init_ui(self)
 │   ├── def bind_signals(self)
 │   ├── def start_workers(self)
 │   ├── def on_get_finished(self, result)
 │   ├── def start_get(self)
-│   ├── def display_ids(self)
 │   ├── def start_download(self)
 │   ├── def download_next(self)
 │   ├── def on_song_download_completed(self, download_result)
+│   ├── def _close_dialog(self)
+│   ├── def _after_dialog_closed(self)
 │   ├── def update_progress(self)
 │   ├── def on_all_finished(self)
 │   ├── def closeEvent(self, event)
@@ -97,6 +117,9 @@ app/main_window.py
 │   ├── def on_playlists_reordered(self, parent, start, end, destination, row)
 │   ├── def on_songs_reordered(self, parent, start, end, destination, row)
 │   ├── def closeEvent(self, event)
+
+config.py
+└── (no top-level classes/functions)
 
 icon.py
 └── (no top-level classes/functions)
@@ -245,6 +268,11 @@ res/templates/share_html.py
 ui/__init__.py
 └── (no top-level classes/functions)
 
+ui/ui_[oldapi]get_netease_songlist_dialog.py
+├── class Ui_qDialog_get_netease_songlist(object)
+│   ├── def setupUi(self, qDialog_get_netease_songlist)
+│   ├── def retranslateUi(self, qDialog_get_netease_songlist)
+
 ui/ui_about_dialog.py
 ├── class Ui_qDialog_aboutDialog(object)
 │   ├── def setupUi(self, qDialog_aboutDialog)
@@ -276,6 +304,23 @@ utils.py
 ├── def get_rel_path(target)
 ├── def load_theme(self, name: str)
 
+workers/[]download_worker.py
+├── class DownloadWorker(QObject)
+│   ├── def __init__(self)
+│   ├── def download(self, songData, url, mediaId, path, randomIdFlag)
+
+workers/[]search_worker.py
+├── class SearchWorker(QObject)
+│   ├── def __init__(self)
+│   ├── def search(self, keyword, source, page_length, page_num)
+
+workers/[oldapi]get_netease_songlist_worker.py
+├── def get_current_playlist_by_ws(cdp_ws_url: str)
+├── def get_current_playlist_by_url(url: str)
+├── class getNeteaseSonglistWorker(QObject)
+│   ├── def __init__(self)
+│   ├── def get(self, url)
+
 workers/__init__.py
 └── (no top-level classes/functions)
 
@@ -285,11 +330,10 @@ workers/download_worker.py
 │   ├── def download(self, songData, url, mediaId, path, randomIdFlag)
 
 workers/get_netease_songlist_worker.py
-├── def get_current_playlist_by_ws(cdp_ws_url: str)
-├── def get_current_playlist_by_url(url: str)
+├── def get_current_playlist_by_id(id)
 ├── class getNeteaseSonglistWorker(QObject)
 │   ├── def __init__(self)
-│   ├── def get(self, url)
+│   ├── def get(self, id)
 
 workers/search_worker.py
 ├── class SearchWorker(QObject)
