@@ -1,15 +1,18 @@
 import os
 from models.session import Session
 from dataclasses import asdict
+from pathlib import Path
+from platformdirs import user_data_dir
 import json
 import traceback
 
 
 class SessionManager:
     def __init__(self):
-        # 务必在打开文件前创建
-        self.path=os.path.join(os.getcwd(),"session.json")
-        self.session=Session()
+        base_dir = Path(user_data_dir("EasyMusicPlus"))
+        base_dir.mkdir(parents=True, exist_ok=True)
+        self.path = base_dir / "session.json"
+        self.session = Session()
     
     def load_session(self):
         try:
@@ -24,11 +27,12 @@ class SessionManager:
             return Session()
     
     def save_session(self):
-        with open(self.path+".tmp", "w") as f:
-            json.dump(asdict(self.session),f,indent=4)
+        tmp_path = self.path.with_name(self.path.name + ".tmp")
+        with open(tmp_path, "w", encoding="utf-8") as f:
+            json.dump(asdict(self.session), f, indent=4)
             f.flush()
             os.fsync(f.fileno())
-        os.replace(self.path+".tmp",self.path)
+        os.replace(tmp_path, self.path)
 
     def get_session(self):
         return self.session
