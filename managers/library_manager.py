@@ -73,10 +73,12 @@ class LibraryManager:
     def remove_playlist(self, playlist_id: str):
         if not self.loaded:
             raise RuntimeError("Library not loaded")
+        if playlist_id=="-----":
+            raise RuntimeError("Unable to delete -----")
         for pl in self.repository.library.play_lists:
             if pl.id == playlist_id:
-                for m in pl.media_items:
-                    self.repository.remove_from_playlist(playlist_id, m.id)
+                for m in pl.media_ids:
+                    self.repository.remove_from_playlist(playlist_id, m)
                 self.repository.library.play_lists.remove(pl)
                 self.repository.save_library()
                 return

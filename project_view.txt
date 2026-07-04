@@ -1,4 +1,10 @@
 
+api/netease.py
+├── def eapi_encrypt(url: str, body: dict)
+├── def get_headers()
+├── def search(keyword, limit, page, timeout)
+├── def lyric(id, timeout)
+
 app/[oldapi]get_netease_songlist_dialog.py
 ├── class GetNeteaseSonglistDialog(QDialog)
 │   ├── def __init__(self, parent, libraryManager: LibraryManager, songlist_id: str, dlconfig: dict)
@@ -292,6 +298,11 @@ ui/ui_get_netease_songlist_dialog.py
 ├── class Ui_qDialog_get_netease_songlist(object)
 │   ├── def setupUi(self, qDialog_get_netease_songlist)
 │   ├── def retranslateUi(self, qDialog_get_netease_songlist)
+
+ui/ui_get_netease_songlist_id_dialog.py
+├── class Ui_qDialog_getNeteaseSonglistId(object)
+│   ├── def setupUi(self, qDialog_getNeteaseSonglistId)
+│   ├── def retranslateUi(self, qDialog_getNeteaseSonglistId)
 
 ui/ui_main_window.py
 ├── class Ui_mainWindow(object)
