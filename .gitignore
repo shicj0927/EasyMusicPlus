@@ -9,3 +9,4 @@ test/
 session.json
 build/
 old_ver_usable/
+dll/
