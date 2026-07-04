@@ -8,6 +8,7 @@ from utils import safe_file_name
 from yt_dlp import YoutubeDL
 import random
 import traceback
+import api.netease as neteaseAPI
 
 
 class DownloadWorker(QObject):
@@ -211,15 +212,24 @@ class DownloadWorker(QObject):
             elif songData["source"]=="netease":
                 # 下载歌词
                 # https://music-api.gdstudio.xyz/api.php?types=lyric&source=[MUSIC SOURCE]&id=[LYRIC ID]
-                lyricUrl = f"https://music-api.gdstudio.xyz/api.php?types=lyric&source=netease&id={songData['id']}"
+                # lyricUrl = f"https://music-api.gdstudio.xyz/api.php?types=lyric&source=netease&id={songData['id']}"
                 for i in range(5):
-                    resp=requests.get(lyricUrl, headers=headers, timeout=5)
-                    if resp.status_code==200 and resp.json()!=None and resp.json()!=[]:
+                    json=neteaseAPI.lyric(songData['id'])
+                    if json:
                         break
-                if resp.status_code==200 and resp.json()!=None and resp.json()!=[]:
-                    lyricData=resp.json()
-                    if "lyric" in lyricData:
-                        lyricContent=lyricData["lyric"]
+                if json:
+                    lyricData=json
+                    # if "lyric" in lyricData:
+                    #     lyricContent=lyricData["lyric"]
+                    #     lyricPath=os.path.join(path, safe_file_name(f"{songData['title']} - {', '.join(songData['artists'])}.lrc"))
+                    #     with open(lyricPath, 'w', encoding='utf-8') as f:
+                    #         f.write(lyricContent)
+                    #     self.downloadLogSingnal.emit(f"歌词下载完成，保存路径：{lyricPath}")
+                    #     songData["lyric_path"]=lyricPath
+                    # else:
+                    #     self.downloadLogSingnal.emit("未找到歌词信息")
+                    if "lrc" in lyricData and "lyric" in lyricData["lrc"]:
+                        lyricContent=lyricData["lrc"]["lyric"]
                         lyricPath=os.path.join(path, safe_file_name(f"{songData['title']} - {', '.join(songData['artists'])}.lrc"))
                         with open(lyricPath, 'w', encoding='utf-8') as f:
                             f.write(lyricContent)
