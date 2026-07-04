@@ -1,0 +1,9 @@
+pycryptodome
+PyQt6
+PyQt6_sip
+python-mpv
+qtawesome
+Requests
+websocket_client
+yt_dlp
+pyqtdarkmode
