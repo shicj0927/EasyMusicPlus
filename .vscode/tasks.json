@@ -22,10 +22,10 @@
         "isDefault": true
       }
     },
-    {
-      "label": "make project view",
-      "type": "shell",
-      "command": "python project_view.py > project_view.txt"
-    }
+    // {
+    //   "label": "make project view",
+    //   "type": "shell",
+    //   "command": "python project_view.py > project_view.txt"
+    // }
   ]
 }
