@@ -5,24 +5,6 @@ api/netease.py
 ├── def search(keyword, limit, page, timeout)
 ├── def lyric(id, timeout)
 
-app/[oldapi]get_netease_songlist_dialog.py
-├── class GetNeteaseSonglistDialog(QDialog)
-│   ├── def __init__(self, parent, libraryManager: LibraryManager, songlist_id: str, dlconfig: dict)
-│   ├── def init_ui(self)
-│   ├── def bind_signals(self)
-│   ├── def start_workers(self)
-│   ├── def on_get_finished(self, result)
-│   ├── def start_get(self)
-│   ├── def display_ids(self)
-│   ├── def start_download(self)
-│   ├── def download_next(self)
-│   ├── def on_song_download_completed(self, download_result)
-│   ├── def update_progress(self)
-│   ├── def on_all_finished(self)
-│   ├── def closeEvent(self, event)
-│   ├── def reject(self)
-│   ├── def stop_thread(self)
-
 app/__init__.py
 └── (no top-level classes/functions)
 
@@ -275,11 +257,6 @@ res/templates/share_html.py
 
 ui/__init__.py
 └── (no top-level classes/functions)
-
-ui/ui_[oldapi]get_netease_songlist_dialog.py
-├── class Ui_qDialog_get_netease_songlist(object)
-│   ├── def setupUi(self, qDialog_get_netease_songlist)
-│   ├── def retranslateUi(self, qDialog_get_netease_songlist)
 
 ui/ui_about_dialog.py
 ├── class Ui_qDialog_aboutDialog(object)
