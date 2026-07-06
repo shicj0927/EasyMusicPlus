@@ -84,7 +84,7 @@ class Ui_mainWindow(object):
         self.qScrollArea_lyrics.setWidgetResizable(True)
         self.qScrollArea_lyrics.setObjectName("qScrollArea_lyrics")
         self.scrollAreaWidgetContents = QtWidgets.QWidget()
-        self.scrollAreaWidgetContents.setGeometry(QtCore.QRect(0, 0, 121, 456))
+        self.scrollAreaWidgetContents.setGeometry(QtCore.QRect(0, 0, 121, 455))
         self.scrollAreaWidgetContents.setObjectName("scrollAreaWidgetContents")
         self.qScrollArea_lyrics.setWidget(self.scrollAreaWidgetContents)
         self.verticalLayout.addWidget(self.qScrollArea_lyrics)
@@ -125,6 +125,10 @@ class Ui_mainWindow(object):
         self.horizontalLayout.addWidget(self.qLabel_nowPlaying)
         spacerItem2 = QtWidgets.QSpacerItem(40, 20, QtWidgets.QSizePolicy.Policy.Expanding, QtWidgets.QSizePolicy.Policy.Minimum)
         self.horizontalLayout.addItem(spacerItem2)
+        self.qCheckBox_i3lyric = QtWidgets.QCheckBox(parent=self.centralWidget)
+        self.qCheckBox_i3lyric.setChecked(True)
+        self.qCheckBox_i3lyric.setObjectName("qCheckBox_i3lyric")
+        self.horizontalLayout.addWidget(self.qCheckBox_i3lyric)
         self.qPushButton_theme = QtWidgets.QPushButton(parent=self.centralWidget)
         self.qPushButton_theme.setObjectName("qPushButton_theme")
         self.horizontalLayout.addWidget(self.qPushButton_theme)
@@ -221,7 +225,7 @@ class Ui_mainWindow(object):
         self.qMenuBar_menuBar.addAction(self.qMenu_about.menuAction())
 
         self.retranslateUi(mainWindow)
-        self.qStackedWidget_playArea.setCurrentIndex(1)
+        self.qStackedWidget_playArea.setCurrentIndex(0)
         QtCore.QMetaObject.connectSlotsByName(mainWindow)
 
     def retranslateUi(self, mainWindow):
@@ -235,6 +239,7 @@ class Ui_mainWindow(object):
         self.qPushButton_addSong.setText(_translate("mainWindow", "添加歌曲"))
         self.qPushButton_removeSong.setText(_translate("mainWindow", "删除歌曲"))
         self.qLabel_nowPlaying.setText(_translate("mainWindow", "当前播放：-"))
+        self.qCheckBox_i3lyric.setText(_translate("mainWindow", "i3blocks显示歌词"))
         self.qPushButton_theme.setText(_translate("mainWindow", "切换主题"))
         self.qLabel_progressLeft.setText(_translate("mainWindow", "--:--/--:--"))
         self.qLabel_progressRight.setText(_translate("mainWindow", "--:--"))

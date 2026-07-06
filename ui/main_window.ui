@@ -90,7 +90,7 @@
       </widget>
       <widget class="QStackedWidget" name="qStackedWidget_playArea">
        <property name="currentIndex">
-        <number>1</number>
+        <number>0</number>
        </property>
        <widget class="QWidget" name="qWidget_vedio">
         <layout class="QVBoxLayout" name="qVBoxLayout_playerArea"/>
@@ -129,7 +129,7 @@
               <x>0</x>
               <y>0</y>
               <width>121</width>
-              <height>456</height>
+              <height>455</height>
              </rect>
             </property>
            </widget>
@@ -217,6 +217,16 @@
          </size>
         </property>
        </spacer>
+      </item>
+      <item>
+       <widget class="QCheckBox" name="qCheckBox_i3lyric">
+        <property name="text">
+         <string>i3blocks显示歌词</string>
+        </property>
+        <property name="checked">
+         <bool>true</bool>
+        </property>
+       </widget>
       </item>
       <item>
        <widget class="QPushButton" name="qPushButton_theme">

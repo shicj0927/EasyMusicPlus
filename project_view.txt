@@ -113,6 +113,8 @@ app/main_window.py
 │   ├── def on_state_changed(self, state)
 │   ├── def on_position_changed(self, position)
 │   ├── def on_slider_value_changed(self)
+│   ├── def on_i3lyric_checkbox_clicked(self)
+│   ├── def send_lyric_to_i3(self, lyric, ignore_flag)
 │   ├── def on_lyric_changed(self, index)
 │   ├── def on_song_double_clicked(self)
 │   ├── def on_next(self)

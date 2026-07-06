@@ -14,6 +14,8 @@ from PyQt6.QtGui import QFont
 from repositories.media_repository import download_result_to_media_item
 from managers.session_manager import SessionManager,Session
 from utils import load_theme,safe_file_name
+from PyQt6.QtCore import QDir, QFile, QIODevice, QTextStream, QStringConverter
+import subprocess
 import os
 from utils import time_s_to_m_s
 import qtawesome as qta
@@ -46,6 +48,8 @@ class MainWindow(QMainWindow):
         self.sessionManager.load_session()
         self.apply_session()
         self.add_music_dialog=None
+        self._last_i3_lyric=""
+        self._i3_lyric_flag=self.ui.qCheckBox_i3lyric.isChecked()
         # self.libraryManager.load_library("./test/test")
         # self.load_playlists_to_ui()
     
@@ -106,6 +110,7 @@ class MainWindow(QMainWindow):
         self.ui.qPushButton_shareList.clicked.connect(self.share_playlist)
         self.ui.qListWidget_listsList.model().rowsMoved.connect(self.on_playlists_reordered)
         self.ui.qListWidget_songsList.model().rowsMoved.connect(self.on_songs_reordered)
+        self.ui.qCheckBox_i3lyric.clicked.connect(self.on_i3lyric_checkbox_clicked)
 
     def change_theme(self):
         if self.theme=="dark":
@@ -313,6 +318,7 @@ class MainWindow(QMainWindow):
             if widget is not None:
                 widget.deleteLater()
         self.lyricLabels.clear()
+        self.send_lyric_to_i3("")
 
     def on_state_changed(self, state):
         print("get state:",state)
@@ -366,6 +372,32 @@ class MainWindow(QMainWindow):
             seconds=self.ui.qSlider_progressBar.value()
             self.playManager.playerManager.seek_absolute(seconds)
     
+    def on_i3lyric_checkbox_clicked(self):
+        self._i3_lyric_flag=self.ui.qCheckBox_i3lyric.isChecked()
+        self.send_lyric_to_i3("",True)
+
+    def send_lyric_to_i3(self, lyric, ignore_flag=False):
+        if ignore_flag==False and self._i3_lyric_flag == False:
+            return
+        if getattr(self, "_last_i3_lyric", None) == lyric:
+            return
+        self._last_i3_lyric = lyric
+
+        file = QFile(QDir.temp().filePath("music_lyric.txt"))
+        if file.open(QIODevice.OpenModeFlag.WriteOnly |
+                    QIODevice.OpenModeFlag.Text):
+            stream = QTextStream(file)
+            stream.setEncoding(QStringConverter.Encoding.Utf8)
+            stream << lyric
+            file.close()
+
+        subprocess.run(
+            ["pkill", "-RTMIN+10", "i3blocks"],
+            stdout=subprocess.DEVNULL,
+            stderr=subprocess.DEVNULL,
+            check=False,
+        )
+
     def on_lyric_changed(self, index):
         if index < 0 or index >= len(self.lyricLabels):
             return
@@ -379,6 +411,7 @@ class MainWindow(QMainWindow):
                 padding: 5px;
             """)
         current_label = self.lyricLabels[index]
+        self.send_lyric_to_i3(current_label.text())
         font = current_label.font()
         font.setPointSize(15)
         font.setBold(True)
