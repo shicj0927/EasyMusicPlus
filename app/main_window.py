@@ -284,6 +284,7 @@ class MainWindow(QMainWindow):
                 songlist_id=self.current_playlist_id,
                 dlconfig={"downloadPath": self.libraryManager.repository.library.master_folder}
             )
+            self.add_music_dialog.addCompletedSignal.connect(self.on_added_from_list)
             self.add_music_dialog.downloadCompletedSignal.connect(self.on_song_download_completed)
             self.add_music_dialog.addedFromDataSignal.connect(lambda media_id: self.on_song_added_from_data(media_id))
             self.add_music_dialog.loadedSonglistSignal.connect(self.on_song_added_from_list)
@@ -292,18 +293,21 @@ class MainWindow(QMainWindow):
     def on_song_added_from_data(self, media_id):
         if self.add_music_dialog:
             self.add_music_dialog.accept()
-            self.on_song_added_from_list=None
+            self.add_music_dialog=None
         self.load_playlist_to_ui()
     
     def on_song_added_from_list(self):
         if self.add_music_dialog:
             self.add_music_dialog.accept()
-            self.on_song_added_from_list=None
+            self.add_music_dialog=None
         self.load_playlist_to_ui()
 
     def on_song_download_completed(self, download_result):
         media_item=download_result_to_media_item(download_result, self.libraryManager.gen_new_media_id())
         self.libraryManager.add_media_to_playlist(self.current_playlist_id, media_item)
+        self.load_playlist_to_ui()
+    
+    def on_added_from_list(self):
         self.load_playlist_to_ui()
     
     def on_duration_changed(self, duration):

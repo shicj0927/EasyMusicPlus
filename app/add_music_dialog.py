@@ -4,12 +4,14 @@ from app.get_netease_songlist_dialog import GetNeteaseSonglistDialog
 from managers.library_manager import LibraryManager
 from app.download_dialog import DownloadDialog
 from PyQt6.QtCore import pyqtSignal, pyqtSlot
+from app.add_music_from_list_dialog import AddMusicFromListDialog
 
 
 class AddMusicDialog(QDialog):
     downloadCompletedSignal = pyqtSignal(object)
     addedFromDataSignal = pyqtSignal(str)
     loadedSonglistSignal = pyqtSignal()
+    addCompletedSignal = pyqtSignal()
 
     def __init__(self, parent, libraryManager: LibraryManager, songlist_id:str, dlconfig: dict):
         super().__init__(parent)
@@ -18,20 +20,23 @@ class AddMusicDialog(QDialog):
         self.songlist_id = songlist_id
         self.dlconfig = dlconfig
         self.getDialog=None
+        self.addFromListDialog=None
         self.ui = Ui_qDialog_addMusicDialog()
         self.ui.setupUi(self)
         self.init_ui()
         self.bind_signals()
 
     def init_ui(self):
-        self.ui.qComboBox_selectFromData.clear()
-        for mid in self.libraryManager.get_playlist_by_id("-----").media_ids:
-            m = self.libraryManager.get_media_by_id(mid)
-            self.ui.qComboBox_selectFromData.addItem(f"{m.title} - {",".join(m.artists)}", m.id)
+        # self.ui.qComboBox_selectFromData.clear()
+        # for mid in self.libraryManager.get_playlist_by_id("-----").media_ids:
+        #     m = self.libraryManager.get_media_by_id(mid)
+        #     self.ui.qComboBox_selectFromData.addItem(f"{m.title} - {",".join(m.artists)}", m.id)
+        pass
 
     def bind_signals(self):
         self.ui.qPushButton_quit.clicked.connect(self.close)
-        self.ui.qPushButton_add_from_data.clicked.connect(self.add_from_data)
+        self.ui.qPushButton_add_from_list.clicked.connect(self.add_from_list)
+        # self.ui.qPushButton_add_from_data.clicked.connect(self.add_from_data)
         self.ui.qPushButton_open_downloader.clicked.connect(self.open_downloader)
         self.ui.qPushButton_netease_songlist.clicked.connect(self.open_get_songlist_dialog)
     
@@ -41,6 +46,15 @@ class AddMusicDialog(QDialog):
             self.libraryManager.add_media_to_playlist(self.songlist_id, self.libraryManager.get_media_by_id(media_id))
             self.addedFromDataSignal.emit(media_id)
             self.close()
+    
+    def add_from_list(self):
+        # print(self.libraryManager)
+        self.addFromListDialog=AddMusicFromListDialog(
+            self.libraryManager,
+            self.songlist_id
+        )
+        self.addFromListDialog.addedSignal.connect(self.on_added)
+        self.addFromListDialog.exec()
     
     def open_downloader(self):
         if self.dlconfig.get("downloadPath"):
@@ -67,3 +81,6 @@ class AddMusicDialog(QDialog):
     def on_song_download_completed(self, download_result):
         self.downloadCompletedSignal.emit(download_result)
         # self.close()
+    
+    def on_added(self):
+        self.addCompletedSignal.emit()

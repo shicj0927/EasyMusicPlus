@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>450</width>
-    <height>142</height>
+    <height>140</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -15,49 +15,23 @@
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>
-    <layout class="QHBoxLayout" name="horizontalLayout">
-     <item>
-      <widget class="QLabel" name="label">
-       <property name="sizePolicy">
-        <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
-         <horstretch>0</horstretch>
-         <verstretch>0</verstretch>
-        </sizepolicy>
-       </property>
-       <property name="text">
-        <string>选择已有歌曲</string>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="QComboBox" name="qComboBox_selectFromData"/>
-     </item>
-     <item>
-      <widget class="QPushButton" name="qPushButton_add_from_data">
-       <property name="sizePolicy">
-        <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-         <horstretch>0</horstretch>
-         <verstretch>0</verstretch>
-        </sizepolicy>
-       </property>
-       <property name="text">
-        <string>添加</string>
-       </property>
-      </widget>
-     </item>
-    </layout>
+    <widget class="QPushButton" name="qPushButton_add_from_list">
+     <property name="text">
+      <string>从已有歌曲/歌单添加</string>
+     </property>
+    </widget>
    </item>
    <item>
     <widget class="QPushButton" name="qPushButton_open_downloader">
      <property name="text">
-      <string>下载新歌曲</string>
+      <string>下载新歌曲（网易云/bilibili）</string>
      </property>
     </widget>
    </item>
    <item>
     <widget class="QPushButton" name="qPushButton_netease_songlist">
      <property name="text">
-      <string>网易云音乐歌单</string>
+      <string>爬取网易云音乐歌单</string>
      </property>
     </widget>
    </item>
