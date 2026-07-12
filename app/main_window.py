@@ -52,6 +52,8 @@ class MainWindow(QMainWindow):
         self._i3_lyric_flag=self.ui.qCheckBox_i3lyric.isChecked()
         # self.libraryManager.load_library("./test/test")
         # self.load_playlists_to_ui()
+        self.is_full_screen=False
+        self.lyric_base_size=13
     
     def set_icon(self,obj,icon):
         obj.setText("")
@@ -66,6 +68,9 @@ class MainWindow(QMainWindow):
         self.set_icon(self.ui.qPushButton_prev,"fa5s.backward")
         self.set_icon(self.ui.qPushButton_stop,"fa5s.stop")
         self.set_icon(self.ui.qPushButton_mode,"fa5s.list")
+        self.set_icon(self.ui.qPushButton_fullScreen,"fa5s.expand")
+        self.set_icon(self.ui.qPushButton_fontM,"mdi.format-font-size-decrease")
+        self.set_icon(self.ui.qPushButton_fontP,"mdi.format-font-size-increase")
         self.ui.qLabel_soundIcon.setPixmap(qta.icon("fa5s.volume-up",color="#3daee9").pixmap(16,16))
         self.ui.qSlider_soundBar.setValue(100)
         self.lyricContainer = QWidget()
@@ -111,6 +116,9 @@ class MainWindow(QMainWindow):
         self.ui.qListWidget_listsList.model().rowsMoved.connect(self.on_playlists_reordered)
         self.ui.qListWidget_songsList.model().rowsMoved.connect(self.on_songs_reordered)
         self.ui.qCheckBox_i3lyric.clicked.connect(self.on_i3lyric_checkbox_clicked)
+        self.ui.qPushButton_fullScreen.clicked.connect(self.switch_full_screen)
+        self.ui.qPushButton_fontP.clicked.connect(self.lyric_font_p)
+        self.ui.qPushButton_fontM.clicked.connect(self.lyric_font_m)
 
     def change_theme(self):
         if self.theme=="dark":
@@ -120,6 +128,47 @@ class MainWindow(QMainWindow):
         self.app.setStyleSheet(qdarktheme.load_stylesheet(self.theme))
         self.update_session()
     
+    def switch_full_screen(self):
+        if self.is_full_screen:
+            self.is_full_screen = False
+            self.set_icon(self.ui.qPushButton_fullScreen, "fa5s.expand")
+            self.fullscreenLayout.removeWidget(self.ui.qStackedWidget_playArea)
+            self.fullscreenLayout.removeWidget(self.ui.qWidget_controlsWidget)
+            self.playLayout.insertWidget(
+                self.playIndex,
+                self.ui.qStackedWidget_playArea
+            )
+            self.controlLayout.insertWidget(
+                self.controlIndex,
+                self.ui.qWidget_controlsWidget
+            )
+            self.fullscreenWindow.close()
+        else:
+            self.is_full_screen = True
+            self.set_icon(self.ui.qPushButton_fullScreen, "fa5s.compress")
+            self.playLayout = self.ui.qStackedWidget_playArea.parentWidget().layout()
+            self.controlLayout = self.ui.qWidget_controlsWidget.parentWidget().layout()
+            self.playIndex = self.playLayout.indexOf(self.ui.qStackedWidget_playArea)
+            self.controlIndex = self.controlLayout.indexOf(self.ui.qWidget_controlsWidget)
+            self.playLayout.removeWidget(self.ui.qStackedWidget_playArea)
+            self.controlLayout.removeWidget(self.ui.qWidget_controlsWidget)
+            self.fullscreenWindow = QWidget()
+            self.fullscreenLayout = QVBoxLayout(self.fullscreenWindow)
+            self.fullscreenLayout.setContentsMargins(0, 0, 0, 0)
+            self.fullscreenLayout.setSpacing(0)
+            self.fullscreenLayout.addWidget(self.ui.qStackedWidget_playArea)
+            self.fullscreenLayout.addWidget(self.ui.qWidget_controlsWidget)
+            self.fullscreenWindow.showFullScreen()
+    
+    def lyric_font_p(self):
+        self.lyric_base_size+=2
+        print(self.lyric_base_size)
+    
+    def lyric_font_m(self):
+        if self.lyric_base_size>2:
+            self.lyric_base_size-=2
+        print(self.lyric_base_size)
+
     def sellect_playlist_by_id(self, playlist_id):
         playlists=self.libraryManager.get_playlists()
         for index, pl in enumerate(playlists):
@@ -407,7 +456,7 @@ class MainWindow(QMainWindow):
             return
         for label in self.lyricLabels:
             font = label.font()
-            font.setPointSize(13)
+            font.setPointSize(self.lyric_base_size)
             font.setBold(False)
             label.setFont(font)
             label.setStyleSheet("""
@@ -417,7 +466,7 @@ class MainWindow(QMainWindow):
         current_label = self.lyricLabels[index]
         self.send_lyric_to_i3(current_label.text())
         font = current_label.font()
-        font.setPointSize(15)
+        font.setPointSize(self.lyric_base_size+2)
         font.setBold(True)
         current_label.setFont(font)
         if self.theme=="dark":
