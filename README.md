@@ -31,7 +31,7 @@ Easy Music Plus 是一个基于 `PyQt6` 的桌面音乐管理与下载工具。�
 1. 克隆或下载项目代码
 
 ```bash
-git clone <仓库地址>
+git clone https://github.com/shicj0927/EasyMusicPlus
 cd EasyMusicPlus
 ```
 
