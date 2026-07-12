@@ -128,8 +128,8 @@
              <rect>
               <x>0</x>
               <y>0</y>
-              <width>121</width>
-              <height>455</height>
+              <width>98</width>
+              <height>28</height>
              </rect>
             </property>
            </widget>
@@ -377,7 +377,6 @@
    <addaction name="qMenu_tool"/>
    <addaction name="qMenu_about"/>
   </widget>
-  <widget class="QStatusBar" name="qStatusBar_statusBar"/>
   <action name="qAction_openDB">
    <property name="text">
     <string>打开歌曲库</string>
