@@ -75,6 +75,14 @@ class LibraryRepository:
         self.library.play_lists.append(playlist)
         self.save_library()
     
+    def rename_playlist(self, playlist_id: str, title: str):
+        for i in range(len(self.library.play_lists)):
+            if self.library.play_lists[i].id==playlist_id:
+                self.library.play_lists[i].title=title
+                self.save_library()
+                return
+        raise ValueError(f"Playlist {playlist_id} not found")
+    
     def remove_playlist(self, playlist_id: str):
         for pl in self.library.play_lists:
             if pl.id == playlist_id:

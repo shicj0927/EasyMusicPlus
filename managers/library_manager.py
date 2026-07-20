@@ -70,6 +70,11 @@ class LibraryManager:
         new_playlist = PlayList_V20(id=self.gen_new_playlist_id(), title=title, media_ids=[])
         self.repository.add_playlist(new_playlist)
     
+    def rename_playlist(self, playlist_id: str, title: str):
+        if not self.loaded:
+            raise RuntimeError("Library not loaded")
+        self.repository.rename_playlist(playlist_id,title)
+    
     def remove_playlist(self, playlist_id: str):
         if not self.loaded:
             raise RuntimeError("Library not loaded")

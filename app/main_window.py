@@ -1,5 +1,7 @@
 from PyQt6.QtWidgets import QMainWindow, QFileDialog, QInputDialog, QMessageBox, QListWidget
 from PyQt6.QtWidgets import QApplication, QListWidgetItem, QLabel, QWidget, QVBoxLayout
+from PyQt6.QtWidgets import QMenu
+from PyQt6.QtGui import QAction
 from ui.ui_main_window import Ui_mainWindow
 from app.download_dialog import DownloadDialog
 from app.about_dialog import AboutDialog
@@ -84,6 +86,14 @@ class MainWindow(QMainWindow):
         self.ui.qPushButton_empty.setDisabled(True)
         self.ui.qListWidget_listsList.setDragDropMode(QListWidget.DragDropMode.InternalMove)
         self.ui.qListWidget_songsList.setDragDropMode(QListWidget.DragDropMode.InternalMove)
+        self.ui.qListWidget_listsList.setContextMenuPolicy(Qt.ContextMenuPolicy.CustomContextMenu)
+        self.ui.qListWidget_listsList.customContextMenuRequested.connect(self.show_context_menu_list)
+        self.ui.qListWidget_songsList.setContextMenuPolicy(Qt.ContextMenuPolicy.CustomContextMenu)
+        self.ui.qListWidget_songsList.customContextMenuRequested.connect(self.show_context_menu_song)
+        self.ui.qPushButton_addSong.hide()
+        self.ui.qPushButton_addSongList.hide()
+        self.ui.qPushButton_removeSong.hide()
+        self.ui.qPushButton_removeSongList.hide()
 
     def bind_signals(self):
         self.ui.qAction_quit.triggered.connect(self.close)
@@ -202,6 +212,36 @@ class MainWindow(QMainWindow):
         print("update session:",session)
         self.sessionManager.set_session(session)
     
+    def show_context_menu_list(self,pos):
+        item = self.ui.qListWidget_listsList.itemAt(pos)
+        menu = QMenu(self)
+        action_add = QAction("添加", self)
+        action_delete = QAction("删除", self)
+        action_rename = QAction("重命名", self)
+        if item is None:
+            action_delete.setEnabled(False)
+            action_rename.setEnabled(False)
+        menu.addAction(action_add)
+        menu.addAction(action_delete)
+        menu.addAction(action_rename)
+        action_add.triggered.connect(self.new_playlist)
+        action_delete.triggered.connect(self.remove_playlist)
+        action_rename.triggered.connect(self.rename_playlist)
+        menu.exec(self.ui.qListWidget_listsList.mapToGlobal(pos))
+    
+    def show_context_menu_song(self,pos):
+        item = self.ui.qListWidget_songsList.itemAt(pos)
+        menu = QMenu(self)
+        action_add = QAction("添加", self)
+        action_delete = QAction("删除", self)
+        if item is None:
+            action_delete.setEnabled(False)
+        menu.addAction(action_add)
+        menu.addAction(action_delete)
+        action_add.triggered.connect(self.on_add_song_clicked)
+        action_delete.triggered.connect(self.remove_song)
+        menu.exec(self.ui.qListWidget_songsList.mapToGlobal(pos))
+
     def open_download_dialog(self):
         dialog = DownloadDialog(self)
         dialog.exec()
@@ -285,6 +325,16 @@ class MainWindow(QMainWindow):
                 self.libraryManager.remove_playlist(playlist_id)
                 self.load_playlists_to_ui()
     
+    def rename_playlist(self):
+        current_row=self.ui.qListWidget_listsList.currentRow()
+        if current_row>=0:
+            playlists=self.libraryManager.get_playlists()
+            playlist_id=playlists[current_row].id
+            title, ok = QInputDialog.getText(self, "重命名歌单", "请输入歌单名称：", text=playlists[current_row].title)
+            if ok and title:
+                self.libraryManager.rename_playlist(playlist_id,title)
+                self.load_playlists_to_ui()
+
     def remove_song(self):
         current_row=self.ui.qListWidget_songsList.currentRow()
         if current_row>=0:
