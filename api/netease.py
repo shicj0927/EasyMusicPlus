@@ -86,3 +86,23 @@ def lyric(id,timeout=5):
         return None
     
     #1434354649
+
+def playlist(id, timeout=5):
+    try:
+        api_path = "/api/v6/playlist/detail"
+        body = {
+            "s": "0",
+            "id": str(id),
+            "n": "1000",
+            "t": "0"
+        }
+        params = eapi_encrypt(api_path, body)
+        response = requests.post(
+            "https://music.163.com/eapi/v6/playlist/detail",
+            headers=get_headers(),
+            data={"params": params},
+            timeout=timeout,
+        )
+        return response.json()
+    except:
+        return None

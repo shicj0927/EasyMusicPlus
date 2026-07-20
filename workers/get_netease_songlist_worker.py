@@ -1,15 +1,17 @@
 import json
 import requests
 from config import *
+import api.netease as neteaseApi
 
 def get_current_playlist_by_id(id):
-    url=API_BASE+"/playlist?id="+id
-    for i in range(5):
-        try:
-            return requests.get(url).json()
-        except:
-            pass
-    return None
+    # url=API_BASE+"/playlist?id="+id
+    # for i in range(5):
+    #     try:
+    #         return requests.get(url).json()
+    #     except:
+    #         pass
+    # return None
+    return neteaseApi.playlist(id)
 
 from PyQt6.QtCore import QObject, pyqtSignal, pyqtSlot
 import traceback
