@@ -12,7 +12,7 @@ from PyQt6 import QtCore, QtGui, QtWidgets
 class Ui_qDialog_downloadDialog(object):
     def setupUi(self, qDialog_downloadDialog):
         qDialog_downloadDialog.setObjectName("qDialog_downloadDialog")
-        qDialog_downloadDialog.resize(587, 473)
+        qDialog_downloadDialog.resize(600, 480)
         self.qHBoxLayout_mainLayout = QtWidgets.QHBoxLayout(qDialog_downloadDialog)
         self.qHBoxLayout_mainLayout.setObjectName("qHBoxLayout_mainLayout")
         self.qTabWidget_mainTabs = QtWidgets.QTabWidget(parent=qDialog_downloadDialog)

@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>450</width>
-    <height>140</height>
+    <height>172</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -32,6 +32,13 @@
     <widget class="QPushButton" name="qPushButton_netease_songlist">
      <property name="text">
       <string>爬取网易云音乐歌单</string>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <widget class="QPushButton" name="qPushButton_netease_list_download">
+     <property name="text">
+      <string>爬取网易云音乐歌单（新版）</string>
      </property>
     </widget>
    </item>

@@ -85,9 +85,14 @@ class DownloadWorker(QObject):
                     songData["url"]="https://www.bilibili.com/video/"+songData["id"]
                     headers["Referer"]="https://www.bilibili.com/"
                     for i in range(5):
-                        resp=requests.get(songData["url"], headers=headers, timeout=5)
-                        if resp.status_code==200:
-                            break
+                        try:
+                            resp=requests.get(songData["url"], headers=headers, timeout=5)
+                            if resp.status_code==200:
+                                break
+                            else:
+                                0/0
+                        except:
+                            self.downloadLogSingnal.emit("网络错误，重试中……")
                     if resp.status_code!=200:
                         self.downloadFinishedSignal.emit({"status":"error","message":"下载失败：无法访问B站视频页面"})
                         return
@@ -101,9 +106,14 @@ class DownloadWorker(QObject):
                     songData["url"]="https://music.163.com/api/song/detail/?ids=["+songData["id"]+"]"
                     headers["Referer"]="https://music.163.com/"
                     for i in range(5):
-                        resp=requests.get(songData["url"], headers=headers, timeout=5)
-                        if resp.status_code==200:
-                            break
+                        try:
+                            resp=requests.get(songData["url"], headers=headers, timeout=5)
+                            if resp.status_code==200:
+                                break
+                            else:
+                                0/0
+                        except:
+                            self.downloadLogSingnal.emit("网络错误，重试中……")
                     if resp.status_code!=200:
                         self.downloadFinishedSignal.emit({"status":"error","message":"下载失败：无法访问网易云音乐页面"})
                         return
@@ -127,9 +137,14 @@ class DownloadWorker(QObject):
                 if bilibiliHtmlCache=="":
                     headers["Referer"]="https://www.bilibili.com/"
                     for i in range(5):
-                        resp=requests.get(songData["url"], headers=headers, timeout=5)
-                        if resp.status_code==200:
-                            break
+                        try:
+                            resp=requests.get(songData["url"], headers=headers, timeout=5)
+                            if resp.status_code==200:
+                                break
+                            else:
+                                0/0
+                        except:
+                            self.downloadLogSingnal.emit("网络错误，重试中……")
                     if resp.status_code!=200:
                         self.downloadFinishedSignal.emit({"status":"error","message":"下载失败：无法访问B站视频页面"})
                         return
@@ -139,9 +154,14 @@ class DownloadWorker(QObject):
                 if neteaseHtmlCache=={}:
                     headers["Referer"]="https://music.163.com/"
                     for i in range(5):
-                        resp=requests.get(songData["url"], headers=headers, timeout=5)
-                        if resp.status_code==200:
-                            break
+                        try:
+                            resp=requests.get(songData["url"], headers=headers, timeout=5)
+                            if resp.status_code==200:
+                                break
+                            else:
+                                0/0
+                        except:
+                            self.downloadLogSingnal.emit("网络错误，重试中……")
                     if resp.status_code!=200:
                         self.downloadFinishedSignal.emit({"status":"error","message":"下载失败：无法访问网易云音乐页面"})
                         return
@@ -177,6 +197,8 @@ class DownloadWorker(QObject):
                         f.write(response.content)
                     self.downloadLogSingnal.emit(f"封面下载完成，保存路径：{coverPath}")
                     songData["cover_path"] = coverPath
+                else:
+                    self.downloadLogSingnal.emit("网络错误，重试中……")
             except Exception as e:
                 self.downloadLogSingnal.emit(f"封面下载失败：{str(e)}")
             # 开始下载
@@ -242,9 +264,14 @@ class DownloadWorker(QObject):
                 # https://music-api.gdstudio.xyz/api.php?types=url&source=[MUSIC SOURCE]&id=[TRACK ID]&br=[128/192/320/740/999]
                 url = f"https://music-api.gdstudio.xyz/api.php?types=url&source=netease&id={songData['id']}&br=320"
                 for i in range(5):
-                    resp=requests.get(url, headers=headers, timeout=5)
-                    if resp.status_code==200 and resp.json()!=None and resp.json()!=[]:
-                        break
+                    try:
+                        resp=requests.get(url, headers=headers, timeout=5)
+                        if resp.status_code==200 and resp.json()!=None and resp.json()!=[]:
+                            break
+                        else:
+                            0/0
+                    except:
+                        self.downloadLogSingnal.emit("网络错误，重试中……")
                 if resp.status_code!=200 or resp.json()==None or resp.json()==[]:
                     self.downloadFinishedSignal.emit({"status":"error","message":"下载失败：无法获取网易云音乐下载链接"})
                     return

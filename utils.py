@@ -1,12 +1,12 @@
 import os
 from pathlib import Path
 
-def safe_file_name(name):
+def safe_file_name(name, max_bytes=150):
     dangerous_chars = r'\/:*?"<>|'
-    for char in dangerous_chars:
-        name = name.replace(char, '_')
-    if len(name) > 200:
-        name = name[:200]
+    for c in dangerous_chars:
+        name = name.replace(c, "_")
+    while len(name.encode("utf-8")) > max_bytes:
+        name = name[:-1]
     return name.strip()
 
 def time_s_to_m_s(time_s):

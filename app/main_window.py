@@ -319,7 +319,7 @@ class MainWindow(QMainWindow):
             playlist_id=playlists[current_row].id
             if playlist_id=="-----":
                 return
-            reply = QMessageBox.question(self, "确认删除", f"确定要删除歌单 '{playlists[current_row].title}' 吗？其中所有歌曲将被删除！", 
+            reply = QMessageBox.question(self, "确认删除", f"确定要删除歌单 '{playlists[current_row].title}' 吗？\n此操作将会永久删除歌单信息，但不会删除歌曲数据！", 
                                          QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No, QMessageBox.StandardButton.No)
             if reply == QMessageBox.StandardButton.Yes:
                 self.libraryManager.remove_playlist(playlist_id)

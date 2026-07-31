@@ -5,7 +5,7 @@ from managers.library_manager import LibraryManager
 from app.download_dialog import DownloadDialog
 from PyQt6.QtCore import pyqtSignal, pyqtSlot
 from app.add_music_from_list_dialog import AddMusicFromListDialog
-
+from app.netease_list_download_dialog import NeteaseListDownloadDialog
 
 class AddMusicDialog(QDialog):
     downloadCompletedSignal = pyqtSignal(object)
@@ -21,6 +21,7 @@ class AddMusicDialog(QDialog):
         self.dlconfig = dlconfig
         self.getDialog=None
         self.addFromListDialog=None
+        self.neteaseDialog=None
         self.ui = Ui_qDialog_addMusicDialog()
         self.ui.setupUi(self)
         self.init_ui()
@@ -39,6 +40,7 @@ class AddMusicDialog(QDialog):
         # self.ui.qPushButton_add_from_data.clicked.connect(self.add_from_data)
         self.ui.qPushButton_open_downloader.clicked.connect(self.open_downloader)
         self.ui.qPushButton_netease_songlist.clicked.connect(self.open_get_songlist_dialog)
+        self.ui.qPushButton_netease_list_download.clicked.connect(self.open_netease_list_download_dialog)
     
     def add_from_data(self):
         media_id = self.ui.qComboBox_selectFromData.currentData()
@@ -72,6 +74,13 @@ class AddMusicDialog(QDialog):
         )
         self.getDialog.allCompletedSignal.connect(self.on_get_completed)
         self.getDialog.exec()
+
+    def open_netease_list_download_dialog(self):
+        self.neteaseDialog=NeteaseListDownloadDialog(
+            self.libraryManager,
+            self.songlist_id,self.dlconfig
+        )
+        self.neteaseDialog.exec()
     
     def on_get_completed(self):
         self.getDialog.accept()

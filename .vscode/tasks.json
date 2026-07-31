@@ -15,7 +15,7 @@
       ],
       "dependsOn": [
         "Build UI",
-        "make project view"
+        // "make project view"
       ],
       "group": {
         "kind": "build",

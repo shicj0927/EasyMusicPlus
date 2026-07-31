@@ -49,6 +49,7 @@ class GetNeteaseSonglistDialog(QDialog):
 
     def on_get_finished(self,result):
         self.ui.qPlainTextEdit_log.clear()
+        print(result)
         if result==None:
             self.result=None
             self.ui.qPlainTextEdit_log.setPlainText("错误！请检查连接并重试！")
@@ -151,6 +152,7 @@ class GetNeteaseSonglistDialog(QDialog):
     def on_all_finished(self):
         self.ui.qProgressBar_progress.setValue(100)
         self.allCompletedSignal.emit()
+        QMessageBox.information(self, "提示", "下载完成，建议重启应用。\n（歌单爬取的线程处理有问题，不重启会神秘闪退 ˘ω˘ ）")
         # QTimer.singleShot(0, self.accept)
 
     def closeEvent(self, event):

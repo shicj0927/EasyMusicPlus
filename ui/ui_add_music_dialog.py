@@ -12,7 +12,7 @@ from PyQt6 import QtCore, QtGui, QtWidgets
 class Ui_qDialog_addMusicDialog(object):
     def setupUi(self, qDialog_addMusicDialog):
         qDialog_addMusicDialog.setObjectName("qDialog_addMusicDialog")
-        qDialog_addMusicDialog.resize(450, 140)
+        qDialog_addMusicDialog.resize(450, 172)
         self.verticalLayout = QtWidgets.QVBoxLayout(qDialog_addMusicDialog)
         self.verticalLayout.setObjectName("verticalLayout")
         self.qPushButton_add_from_list = QtWidgets.QPushButton(parent=qDialog_addMusicDialog)
@@ -24,6 +24,9 @@ class Ui_qDialog_addMusicDialog(object):
         self.qPushButton_netease_songlist = QtWidgets.QPushButton(parent=qDialog_addMusicDialog)
         self.qPushButton_netease_songlist.setObjectName("qPushButton_netease_songlist")
         self.verticalLayout.addWidget(self.qPushButton_netease_songlist)
+        self.qPushButton_netease_list_download = QtWidgets.QPushButton(parent=qDialog_addMusicDialog)
+        self.qPushButton_netease_list_download.setObjectName("qPushButton_netease_list_download")
+        self.verticalLayout.addWidget(self.qPushButton_netease_list_download)
         self.qPushButton_quit = QtWidgets.QPushButton(parent=qDialog_addMusicDialog)
         self.qPushButton_quit.setObjectName("qPushButton_quit")
         self.verticalLayout.addWidget(self.qPushButton_quit)
@@ -37,4 +40,5 @@ class Ui_qDialog_addMusicDialog(object):
         self.qPushButton_add_from_list.setText(_translate("qDialog_addMusicDialog", "从已有歌曲/歌单添加"))
         self.qPushButton_open_downloader.setText(_translate("qDialog_addMusicDialog", "下载新歌曲（网易云/bilibili）"))
         self.qPushButton_netease_songlist.setText(_translate("qDialog_addMusicDialog", "爬取网易云音乐歌单"))
+        self.qPushButton_netease_list_download.setText(_translate("qDialog_addMusicDialog", "爬取网易云音乐歌单（新版）"))
         self.qPushButton_quit.setText(_translate("qDialog_addMusicDialog", "关闭"))
