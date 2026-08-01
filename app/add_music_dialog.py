@@ -12,6 +12,7 @@ class AddMusicDialog(QDialog):
     addedFromDataSignal = pyqtSignal(str)
     loadedSonglistSignal = pyqtSignal()
     addCompletedSignal = pyqtSignal()
+    refreshPlaylistSignal = pyqtSignal()
 
     def __init__(self, parent, libraryManager: LibraryManager, songlist_id:str, dlconfig: dict):
         super().__init__(parent)
@@ -75,11 +76,15 @@ class AddMusicDialog(QDialog):
         self.getDialog.allCompletedSignal.connect(self.on_get_completed)
         self.getDialog.exec()
 
+    def refresh_playlist(self):
+        self.refreshPlaylistSignal.emit()
+
     def open_netease_list_download_dialog(self):
         self.neteaseDialog=NeteaseListDownloadDialog(
             self.libraryManager,
             self.songlist_id,self.dlconfig
         )
+        self.neteaseDialog.refreshPlaylistSignal.connect(self.refresh_playlist)
         self.neteaseDialog.exec()
     
     def on_get_completed(self):

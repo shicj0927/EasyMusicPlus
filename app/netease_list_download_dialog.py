@@ -8,9 +8,12 @@ from workers.get_netease_songlist_worker import getNeteaseSonglistWorker
 from workers.download_worker import DownloadWorker
 from PyQt6.QtWidgets import QMessageBox
 from models.media import MediaItem_V10
+from repositories.media_repository import download_result_to_media_item
 
 class NeteaseListDownloadDialog(QDialog):
     startGetSignal=pyqtSignal(str)
+    startDownloadSignal=pyqtSignal(object, str, str, str, bool)
+    refreshPlaylistSignal=pyqtSignal()
 
     def __init__(self, libraryManager: LibraryManager, songlist_id:str, dlconfig: dict):
         super().__init__()
@@ -44,7 +47,7 @@ class NeteaseListDownloadDialog(QDialog):
         self.ui.qProgressBar_progress.setValue(0)
         self.ui.qPushButton_pause.hide()
         #Debug Start
-        self.ui.qLineEdit_source.setText("6886060493")
+        # self.ui.qLineEdit_source.setText("6886060493")
         #Debug End
 
     def bind_signals(self):
@@ -66,6 +69,7 @@ class NeteaseListDownloadDialog(QDialog):
         self.downloadWorker.downloadLogSingnal.connect(self.on_get_download_log)
         self.downloadWorker.procressUpdateSignal.connect(self.on_progress_updated)
         self.downloadWorker.downloadFinishedSignal.connect(self.on_download_finished)
+        self.startDownloadSignal.connect(self.downloadWorker.download)
         self.downloadWorker.moveToThread(self.downloadThread)
         self.downloadThread.start()
 
@@ -177,13 +181,19 @@ class NeteaseListDownloadDialog(QDialog):
         while self.current_index<len(self.is_downloaded) and self.is_downloaded[self.current_index]:
             self.from_library_to_list(self.current_index)
             self.current_index+=1
+        self.refreshPlaylistSignal.emit()
         if self.current_index==len(self.is_downloaded)-1 and self.is_downloaded[self.current_index]:
             self.from_library_to_list(self.current_index)
+            self.refreshPlaylistSignal.emit()
             QMessageBox.information(self,"提示","下载完成")
             self.downloading=False
             return
-        self.downloadWorker.download(None,None,self.id_list[self.current_index],
-                                     self.dlconfig["downloadPath"],True)
+        self.sta_list[self.current_index].setText("下载中")
+        self.sta_list[self.current_index].setStyleSheet("color: orange;")
+        # self.downloadWorker.download(None,None,self.id_list[self.current_index],
+        #                              self.dlconfig["downloadPath"],True)
+        self.startDownloadSignal.emit(None,None,self.id_list[self.current_index],
+                                        self.dlconfig["downloadPath"],True)
 
     def on_download_finished(self,result):
         self.ui.qPlainTextEdit_log.appendPlainText(str(result))
@@ -194,11 +204,9 @@ class NeteaseListDownloadDialog(QDialog):
         else:
             self.sta_list[self.current_index].setText("下载完成")
             self.sta_list[self.current_index].setStyleSheet("color: green;")
-            # print("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!",type(result.get("result")))
-            res=result.get("result")
-            if "dict" in str(type(res)):
-                res=MediaItem_V10.from_dict(res)
+            res=download_result_to_media_item(result.get("result"),self.libraryManager.gen_new_media_id())
             self.libraryManager.add_media_to_playlist(self.songlist_id,res)
+        self.refreshPlaylistSignal.emit()
         self.current_index+=1
         while self.current_index<len(self.id_list) and self.is_downloaded[self.current_index]:
             self.from_library_to_list(self.current_index)
@@ -210,8 +218,12 @@ class NeteaseListDownloadDialog(QDialog):
             self.ui.qProgressBar_progress.setValue(100)
             QMessageBox(self,"消息","全部下载完成！")
             self.downloading=False
-        self.downloadWorker.download(None,None,self.id_list[self.current_index],
-                                             self.dlconfig["downloadPath"],True)
+        # self.downloadWorker.download(None,None,self.id_list[self.current_index],
+        #                                      self.dlconfig["downloadPath"],True)
+        self.sta_list[self.current_index].setText("下载中")
+        self.sta_list[self.current_index].setStyleSheet("color: orange;")
+        self.startDownloadSignal.emit(None,None,self.id_list[self.current_index],
+                                        self.dlconfig["downloadPath"],True)
 
     def closeEvent(self, event):
         self.stop_thread()
