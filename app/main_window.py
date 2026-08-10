@@ -6,6 +6,7 @@ from ui.ui_main_window import Ui_mainWindow
 from app.download_dialog import DownloadDialog
 from app.about_dialog import AboutDialog
 from app.add_music_dialog import AddMusicDialog
+from app.search_lyric_dialog import SearchLyricDialog
 from managers.library_manager import LibraryManager
 from managers.play_manager import PlayManager,PlayMode
 from managers.player_manager import PlayerState
@@ -102,6 +103,7 @@ class MainWindow(QMainWindow):
         self.ui.qAction_aboutQt.triggered.connect(lambda: QMessageBox.aboutQt(self,"关于 Qt"))
         self.ui.qAction_newDB.triggered.connect(self.create_new_library)
         self.ui.qAction_openDB.triggered.connect(self.open_library)
+        self.ui.qAction_search_lyric.triggered.connect(self.open_search_lyric_dialog)
         self.ui.qPushButton_addSongList.clicked.connect(self.new_playlist)
         self.ui.qPushButton_removeSongList.clicked.connect(self.remove_playlist)
         self.ui.qListWidget_listsList.currentRowChanged.connect(self.on_playlist_selection_changed)
@@ -249,6 +251,14 @@ class MainWindow(QMainWindow):
     def open_about_dialog(self):
         dialog = AboutDialog()
         dialog.exec()
+
+    def open_search_lyric_dialog(self):
+        if self.libraryManager and self.libraryManager.is_loaded:
+            dialog=SearchLyricDialog(self.libraryManager,self)
+            dialog.songDoubleClicked.connect(lambda id: self.start_play(self.libraryManager.get_media_by_id(id)))
+            dialog.exec()
+        else:
+            QMessageBox.information(self,"错误","请先打开媒体库！")
     
     def create_new_library(self):
         fa_folder=QFileDialog.getExistingDirectory(self, "选择新建媒体库目录")
@@ -554,6 +564,9 @@ class MainWindow(QMainWindow):
     
     def on_song_double_clicked(self):
         media=self.libraryManager.get_media_by_id(self.current_media_id)
+        self.start_play(media)
+
+    def start_play(self,media):
         if self.playManager.check_type(media)=="video":
             self.ui.qStackedWidget_playArea.setCurrentWidget(self.ui.qWidget_vedio)
         else:
