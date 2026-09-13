@@ -6,6 +6,7 @@ from PyQt6.QtCore import QThread
 import os
 from utils import safe_file_name
 from yt_dlp import YoutubeDL
+import yt_dlp
 import random
 import traceback
 import api.netease as neteaseAPI
@@ -20,6 +21,15 @@ class DownloadWorker(QObject):
     def __init__(self):
         super().__init__()
 
+    def get_bilibili_info(self, url):
+        opts = {
+            "quiet": True,
+            "no_warnings": True,
+            "skip_download": True,
+        }
+        with yt_dlp.YoutubeDL(opts) as ydl:
+            return ydl.extract_info(url, download=False)
+
     @pyqtSlot(object, str, str, str, bool)
     def download(self, songData, url, mediaId, path, randomIdFlag):
         import yt_dlp
@@ -27,7 +37,7 @@ class DownloadWorker(QObject):
         print("yt_dlp version:", yt_dlp.version.__version__)
         print("yt_dlp path:", yt_dlp.__file__)
         try:
-            bilibiliHtmlCache = ""
+            # bilibiliHtmlCache = ""
             neteaseHtmlCache = {}
             print(f"download: {songData}, {url}, {mediaId}, {path}, {randomIdFlag}")
             randomId = ""
@@ -102,38 +112,51 @@ class DownloadWorker(QObject):
                 # 请求title和artist等信息
                 if songData["source"] == "bilibili":
                     songData["url"] = "https://www.bilibili.com/video/" + songData["id"]
-                    headers["Referer"] = "https://www.bilibili.com/"
-                    for i in range(5):
-                        try:
-                            resp = requests.get(
-                                songData["url"], headers=headers, timeout=5
-                            )
-                            if resp.status_code == 200:
-                                break
-                            else:
-                                0 / 0
-                        except:
-                            self.downloadLogSingnal.emit("网络错误，重试中……")
-                    if resp.status_code != 200:
+                    # headers["Referer"] = "https://www.bilibili.com/"
+                    # for i in range(5):
+                    #     try:
+                    #         resp = requests.get(
+                    #             songData["url"], headers=headers, timeout=5
+                    #         )
+                    #         if resp.status_code == 200:
+                    #             break
+                    #         else:
+                    #             0 / 0
+                    #     except:
+                    #         self.downloadLogSingnal.emit("网络错误，重试中……")
+                    # if resp.status_code != 200:
+                    #     self.downloadFinishedSignal.emit(
+                    #         {
+                    #             "status": "error",
+                    #             "message": "下载失败：无法访问B站视频页面",
+                    #         }
+                    #     )
+                    #     return
+                    # html = resp.text
+                    # bilibiliHtmlCache = html
+                    # title = re.search(
+                    #     r"<h1 data-title=\"(.*?)\" title=\"(.*?)\" class=\"video-title special-text-indent\" data-v-fe6ec38e>",
+                    #     html,
+                    # ).group(1)
+                    # songData["title"] = title
+                    # artist = re.search(
+                    #     r"<meta data-vue-meta=\"true\" itemprop=\"author\" name=\"author\" content=\"(.*?)\">",
+                    #     html,
+                    # ).group(1)
+                    # songData["artists"] = [artist]
+                    try:
+                        info = self.get_bilibili_info(songData["url"])
+                        songData["title"] = info.get("title", "")
+                        songData["artists"] = [info.get("uploader", "")]
+                    except Exception as e:
                         self.downloadFinishedSignal.emit(
                             {
                                 "status": "error",
-                                "message": "下载失败：无法访问B站视频页面",
+                                "message": f"下载失败：无法获取B站视频信息：{e}",
                             }
                         )
                         return
-                    html = resp.text
-                    bilibiliHtmlCache = html
-                    title = re.search(
-                        r"<h1 data-title=\"(.*?)\" title=\"(.*?)\" class=\"video-title special-text-indent\" data-v-fe6ec38e>",
-                        html,
-                    ).group(1)
-                    songData["title"] = title
-                    artist = re.search(
-                        r"<meta data-vue-meta=\"true\" itemprop=\"author\" name=\"author\" content=\"(.*?)\">",
-                        html,
-                    ).group(1)
-                    songData["artists"] = [artist]
+
                 elif songData["source"] == "netease":
                     songData["url"] = (
                         "https://music.163.com/api/song/detail/?ids=["
@@ -193,32 +216,43 @@ class DownloadWorker(QObject):
             # 此时包含 url, id, source, title, artists等信息
             # 补齐封面
             if songData["source"] == "bilibili":
-                if bilibiliHtmlCache == "":
-                    headers["Referer"] = "https://www.bilibili.com/"
-                    for i in range(5):
-                        try:
-                            resp = requests.get(
-                                songData["url"], headers=headers, timeout=5
-                            )
-                            if resp.status_code == 200:
-                                break
-                            else:
-                                0 / 0
-                        except:
-                            self.downloadLogSingnal.emit("网络错误，重试中……")
-                    if resp.status_code != 200:
-                        self.downloadFinishedSignal.emit(
-                            {
-                                "status": "error",
-                                "message": "下载失败：无法访问B站视频页面",
-                            }
-                        )
-                        return
-                    bilibiliHtmlCache = resp.text
-                songData["cover"] = "https:" + re.search(
-                    r"<meta data-vue-meta=\"true\" property=\"og:image\" content=\"(.*?)@100w_100h_1c",
-                    bilibiliHtmlCache,
-                ).group(1)
+                # if bilibiliHtmlCache == "":
+                #     headers["Referer"] = "https://www.bilibili.com/"
+                #     for i in range(5):
+                #         try:
+                #             resp = requests.get(
+                #                 songData["url"], headers=headers, timeout=5
+                #             )
+                #             if resp.status_code == 200:
+                #                 break
+                #             else:
+                #                 0 / 0
+                #         except:
+                #             self.downloadLogSingnal.emit("网络错误，重试中……")
+                #     if resp.status_code != 200:
+                #         self.downloadFinishedSignal.emit(
+                #             {
+                #                 "status": "error",
+                #                 "message": "下载失败：无法访问B站视频页面",
+                #             }
+                #         )
+                #         return
+                #     bilibiliHtmlCache = resp.text
+                # songData["cover"] = "https:" + re.search(
+                #     r"<meta data-vue-meta=\"true\" property=\"og:image\" content=\"(.*?)@100w_100h_1c",
+                #     bilibiliHtmlCache,
+                # ).group(1)
+                try:
+                    info = self.get_bilibili_info(songData["url"])
+                    songData["cover"] = info.get("thumbnail", "")
+                except Exception as e:
+                    self.downloadFinishedSignal.emit(
+                        {
+                            "status": "error",
+                            "message": f"下载失败：无法获取B站视频封面：{e}",
+                        }
+                    )
+                    return
             elif songData["source"] == "netease":
                 if neteaseHtmlCache == {}:
                     headers["Referer"] = "https://music.163.com/"
