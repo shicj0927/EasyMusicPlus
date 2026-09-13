@@ -2,13 +2,14 @@ import re
 from models.media import LyricLine, Lyric
 import bisect
 
+
 class LyricManager:
     def __init__(self):
-        self.lyric=Lyric()
-        self.path=""
-        self.loaded=False
-    
-    def load(self,path):
+        self.lyric = Lyric()
+        self.path = ""
+        self.loaded = False
+
+    def load(self, path):
         self.path = path
         self.lyric = Lyric()
         try:
@@ -26,10 +27,7 @@ class LyricManager:
             second = float(match.group(2))
             text = match.group(3).strip()
             time_ms = int((minute * 60 + second) * 1000)
-            lyric_line = LyricLine(
-                time_ms=time_ms,
-                text=text
-            )
+            lyric_line = LyricLine(time_ms=time_ms, text=text)
             self.lyric.lines.append(lyric_line)
         self.loaded = True
         self.lyric.lines.sort(key=lambda x: x.time_ms)
@@ -40,7 +38,7 @@ class LyricManager:
         if index >= 0:
             return self.lyric.lines[index].text
         return None
-    
+
     def get_current_lyric_index(self, time_ms):
         times = [line.time_ms for line in self.lyric.lines]
         index = bisect.bisect_right(times, time_ms) - 1
@@ -50,4 +48,3 @@ class LyricManager:
 
     def get_lyric_lines(self):
         return self.lyric.lines
-    

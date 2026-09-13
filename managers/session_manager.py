@@ -22,6 +22,7 @@ class SessionManager:
             with open(self.path,"r") as f:
                 data=json.load(f)
             self.session=Session.from_dict(data)
+            self.session.current_playlist_id="-----"
         except Exception as e:
             traceback.print_exc(e)
             return Session()

@@ -9,6 +9,7 @@ import requests
 
 EAPI_KEY = b"e82ckenh8dichen8"
 
+
 def eapi_encrypt(url: str, body: dict):
     text = json.dumps(body, separators=(",", ":"), ensure_ascii=False)
     message = f"nobody{url}use{text}md5forencrypt"
@@ -18,7 +19,8 @@ def eapi_encrypt(url: str, body: dict):
     encrypted = cipher.encrypt(pad(data.encode(), AES.block_size))
     return encrypted.hex().upper()
 
-def get_headers() :
+
+def get_headers():
     timestamp = str(int(time.time() * 1000))
     device_id = secrets.token_hex(16).upper()
     return {
@@ -39,63 +41,59 @@ def get_headers() :
         "Content-Type": "application/x-www-form-urlencoded",
     }
 
-def search(keyword,limit,page,timeout=5):
+
+def search(type, keyword, limit, page, timeout=5):
     try:
         api_path = "/api/cloudsearch/pc"
         body = {
             "s": keyword,
-            "type": 1,
+            "type": type,
             "limit": limit,
             "total": "true",
-            "offset": (page - 1) * limit
+            "offset": (page - 1) * limit,
         }
         params = eapi_encrypt(api_path, body)
         response = requests.post(
             "https://music.163.com/eapi/cloudsearch/pc",
             headers=get_headers(),
-            data={
-                "params": params
-            },
-            timeout=timeout
+            data={"params": params},
+            timeout=timeout,
         )
         return response.json()
     except:
         return None
-    
-def lyric(id,timeout=5):
+
+
+def search_song(keyword, limit, page, timeout=5):
+    return search(1, keyword, limit, page, timeout)
+
+
+def search_list(keyword, limit, page, timeout=5):
+    return search(1000, keyword, limit, page, timeout)
+
+
+def lyric(id, timeout=5):
     try:
-        api_path="/api/song/lyric"
-        body={
-            "id": id,
-            "os": "linux",
-            "lv": -1,
-            "kv": -1,
-            "tv": -1
-        }
+        api_path = "/api/song/lyric"
+        body = {"id": id, "os": "linux", "lv": -1, "kv": -1, "tv": -1}
         params = eapi_encrypt(api_path, body)
         response = requests.post(
             "https://music.163.com/eapi/song/lyric",
             headers=get_headers(),
-            data={
-                "params": params
-            },
-            timeout=timeout
+            data={"params": params},
+            timeout=timeout,
         )
         return response.json()
     except:
         return None
-    
-    #1434354649
+
+    # 1434354649
+
 
 def playlist(id, timeout=5):
     try:
         api_path = "/api/v6/playlist/detail"
-        body = {
-            "s": "0",
-            "id": str(id),
-            "n": "1000",
-            "t": "0"
-        }
+        body = {"s": "0", "id": str(id), "n": "1000", "t": "0"}
         params = eapi_encrypt(api_path, body)
         response = requests.post(
             "https://music.163.com/eapi/v6/playlist/detail",

@@ -1,4 +1,4 @@
-html="""
+html = """
 <!DOCTYPE html>
 <html lang="zh-CN">
 
@@ -256,6 +256,7 @@ body{
 </html>
 """
 
+
 def get_share_html(json_data):
-    tmp=html.replace("__DATA__", json_data)
+    tmp = html.replace("__DATA__", json_data)
     return tmp

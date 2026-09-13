@@ -1,8 +1,8 @@
 from PyQt6.QtWidgets import QDialog
 from ui.ui_about_dialog import Ui_qDialog_aboutDialog
 
-class AboutDialog(QDialog):
 
+class AboutDialog(QDialog):
     def __init__(self):
         super().__init__()
         self.ui = Ui_qDialog_aboutDialog()
