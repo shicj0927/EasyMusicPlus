@@ -5,6 +5,7 @@ from PyQt6.QtWidgets import (
     QMessageBox,
     QListWidget,
 )
+import os
 from PyQt6.QtWidgets import QApplication, QListWidgetItem, QLabel, QWidget, QVBoxLayout
 from PyQt6.QtWidgets import QMenu
 from PyQt6.QtGui import QAction
@@ -69,6 +70,10 @@ class MainWindow(QMainWindow):
         obj.setIcon(qta.icon(icon, color="#3daee9"))
 
     def init_ui(self):
+        i3_lyric_enabled = os.getenv("EasyMusicPlusI3LyricFlag") == "1"
+        if not i3_lyric_enabled:
+            self.ui.qCheckBox_i3lyric.setVisible(False)
+            self.ui.qCheckBox_i3lyric.setChecked(False)
         self.ui.qSplitter_mainSplitter.setSizes([200, 600, 200])
         self.set_icon(self.ui.qPushButton_control, "fa5s.play")
         self.set_icon(self.ui.qPushButton_next, "fa5s.forward")
