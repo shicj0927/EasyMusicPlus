@@ -6,4 +6,4 @@ qtawesome
 Requests
 websocket_client
 yt_dlp
-pyqtdarkmode
+pyqtdarktheme
